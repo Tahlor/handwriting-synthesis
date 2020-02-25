@@ -7,6 +7,7 @@ import svgwrite
 import drawing
 import lyrics
 from rnn import rnn
+from create_style import load_samples
 
 
 class Hand(object):
@@ -38,7 +39,7 @@ class Hand(object):
         )
         self.nn.restore()
 
-    def write(self, filename, lines, biases=None, styles=None, stroke_colors=None, stroke_widths=None):
+    def write(self, filename, lines, biases=None, styles=None, stroke_colors=None, stroke_widths=None, return_strokes=False, only_strokes=False):
         valid_char_set = set(drawing.alphabet)
         for line_num, line in enumerate(lines):
             if len(line) > 75:
@@ -59,7 +60,9 @@ class Hand(object):
                     )
 
         strokes = self._sample(lines, biases=biases, styles=styles)
-        self._draw(strokes, lines, filename, stroke_colors=stroke_colors, stroke_widths=stroke_widths)
+        strokes = self._draw(strokes, lines, filename, stroke_colors=stroke_colors, stroke_widths=stroke_widths, return_strokes=return_strokes, only_strokes=only_strokes)
+        if return_strokes:
+            return strokes
 
     def _sample(self, lines, biases=None, styles=None):
         num_samples = len(lines)
@@ -73,8 +76,12 @@ class Hand(object):
 
         if styles is not None:
             for i, (cs, style) in enumerate(zip(lines, styles)):
-                x_p = np.load('styles/style-{}-strokes.npy'.format(style))
-                c_p = np.load('styles/style-{}-chars.npy'.format(style)).tostring().decode('utf-8')
+                if isinstance(style, dict):
+                    x_p = style['stroke']
+                    c_p = style['text']
+                else:
+                    x_p = np.load('styles/style-{}-strokes.npy'.format(style))
+                    c_p = np.load('styles/style-{}-chars.npy'.format(style)).tostring().decode('utf-8')
 
                 c_p = str(c_p) + " " + cs
                 c_p = drawing.encode_ascii(c_p)
@@ -107,7 +114,7 @@ class Hand(object):
         samples = [sample[~np.all(sample == 0.0, axis=1)] for sample in samples]
         return samples
 
-    def _draw(self, strokes, lines, filename, stroke_colors=None, stroke_widths=None):
+    def _draw(self, strokes, lines, filename, stroke_colors=None, stroke_widths=None, return_strokes=False, only_strokes=False):
         stroke_colors = stroke_colors or ['black']*len(lines)
         stroke_widths = stroke_widths or [2]*len(lines)
 
@@ -120,24 +127,27 @@ class Hand(object):
         dwg.add(dwg.rect(insert=(0, 0), size=(view_width, view_height), fill='white'))
 
         initial_coord = np.array([0, -(3*line_height / 4)])
-        for offsets, line, color, width in zip(strokes, lines, stroke_colors, stroke_widths):
+        for i, (offsets, line, color, width) in enumerate(zip(strokes, lines, stroke_colors, stroke_widths)):
 
             if not line:
                 initial_coord[1] -= line_height
                 continue
 
             offsets[:, :2] *= 1.5
-            strokes = drawing.offsets_to_coords(offsets)
-            strokes = drawing.denoise(strokes)
-            strokes[:, :2] = drawing.align(strokes[:, :2])
+            curr_strokes = drawing.offsets_to_coords(offsets)
+            curr_strokes = drawing.denoise(curr_strokes)
+            curr_strokes[:, :2] = drawing.align(curr_strokes[:, :2])
+            if only_strokes:
+                strokes[i] = curr_strokes
+                continue
 
-            strokes[:, 1] *= -1
-            strokes[:, :2] -= strokes[:, :2].min() + initial_coord
-            strokes[:, 0] += (view_width - strokes[:, 0].max()) / 2
+            curr_strokes[:, 1] *= -1
+            curr_strokes[:, :2] -= curr_strokes[:, :2].min() + initial_coord
+            curr_strokes[:, 0] += (view_width - curr_strokes[:, 0].max()) / 2
 
             prev_eos = 1.0
             p = "M{},{} ".format(0, 0)
-            for x, y, eos in zip(*strokes.T):
+            for x, y, eos in zip(*curr_strokes.T):
                 p += '{}{},{} '.format('M' if prev_eos == 1.0 else 'L', x, y)
                 prev_eos = eos
             path = svgwrite.path.Path(p)
