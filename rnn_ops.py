@@ -6,11 +6,15 @@ from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import math_ops
 from tensorflow.python.ops import tensor_array_ops
 from tensorflow.python.ops import variable_scope as vs
-from tensorflow.python.ops.rnn_cell_impl import _concat, _like_rnncell
 from tensorflow.python.ops.rnn import _maybe_tensor_shape_from_tensor
 from tensorflow.python.util import nest
 from tensorflow.python.framework import tensor_shape
 from tensorflow.python.eager import context
+
+from tensorflow.python.ops.rnn_cell_impl import _concat, _like_rnncell
+
+# from tensorflow.python.ops.rnn_cell_impl import _concat
+# from tensorflow.python.ops.rnn_cell_impl import assert_like_rnncell as _like_rnncell
 
 
 def raw_rnn(cell, loop_fn, parallel_iterations=None, swap_memory=False, scope=None):

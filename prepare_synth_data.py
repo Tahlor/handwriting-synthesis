@@ -2,6 +2,7 @@ import numpy as np
 import drawing
 from drawing import MAX_CHAR_LEN, MAX_STROKE_LEN
 
+DATA = "archidata/all_data.npy"
 
 def load_data(path):
     samples = np.load(path, allow_pickle=True)
@@ -13,9 +14,7 @@ def process_stroke(stroke):
     stroke[:, -1] = np.where(np.diff(np.insert(sps, 0, 0)) > 0.5, 1, 0)
     stroke = stroke[:MAX_STROKE_LEN]
     stroke = drawing.normalize(stroke)
-
     return stroke
-
 
 def process_chars(chars):
     chars = chars.strip()
@@ -39,7 +38,7 @@ def process_data(samples):
 
 
 if __name__ == "__main__":
-    data = load_data('data/raw/all_data.npy')
+    data = load_data(DATA)
     strokes, chars = process_data(data)
 
     x = np.zeros([len(strokes), drawing.MAX_STROKE_LEN, 3], dtype=np.float32)
