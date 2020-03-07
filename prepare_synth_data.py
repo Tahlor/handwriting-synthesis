@@ -3,6 +3,7 @@ import drawing
 from drawing import MAX_CHAR_LEN, MAX_STROKE_LEN
 
 DATA = "archidata/all_data.npy"
+#DATA = "archidata/0.npy"
 
 def load_data(path):
     samples = np.load(path, allow_pickle=True)
@@ -12,9 +13,14 @@ def load_data(path):
 def process_stroke(stroke):
     sps = stroke[:, -1]
     stroke[:, -1] = np.where(np.diff(np.insert(sps, 0, 0)) > 0.5, 1, 0)
-    stroke = stroke[:MAX_STROKE_LEN]
-    stroke = drawing.normalize(stroke)
-    return stroke
+
+    coords = drawing.align(stroke)
+    coords = drawing.denoise(coords)
+    offsets = drawing.coords_to_offsets(coords)
+    offsets = offsets[:drawing.MAX_STROKE_LEN]
+    offsets = drawing.normalize(offsets)
+
+    return offsets
 
 def process_chars(chars):
     chars = chars.strip()

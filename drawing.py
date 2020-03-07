@@ -6,7 +6,6 @@ import numpy as np
 from scipy.signal import savgol_filter
 from scipy.interpolate import interp1d
 
-
 alphabet = [
     '\x00', ' ', '!', '"', '#', "'", '(', ')', ',', '-', '.',
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';',
@@ -134,7 +133,8 @@ def normalize(offsets):
     normalizes strokes to median unit norm
     """
     offsets = np.copy(offsets)
-    offsets[:, :2] /= np.median(np.linalg.norm(offsets[:, :2], axis=1))
+    median = np.median(np.linalg.norm(offsets[:, :2], axis=1))
+    offsets[:, :2] /= median
     return offsets
 
 
