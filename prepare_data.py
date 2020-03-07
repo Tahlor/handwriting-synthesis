@@ -20,13 +20,13 @@ def get_stroke_sequence(filename):
                 int(i == len(stroke) - 1)
             ])
     coords = np.array(coords)
-
     coords = drawing.align(coords)
     coords = drawing.denoise(coords)
     offsets = drawing.coords_to_offsets(coords)
     offsets = offsets[:drawing.MAX_STROKE_LEN]
     offsets = drawing.normalize(offsets)
-    return offsets
+
+    return coords, offsets
 
 
 def get_ascii_sequences(filename):
@@ -51,7 +51,7 @@ def collect_data():
 
     # low quality samples (selected by collecting samples to
     # which the trained model assigned very low likelihood)
-    blacklist = set(np.load('data/blacklist.npy'))
+    blacklist = set(np.load('data/blacklist.npy', allow_pickle=True))
 
     stroke_fnames, transcriptions, writer_ids = [], [], []
     for i, fname in enumerate(fnames):
