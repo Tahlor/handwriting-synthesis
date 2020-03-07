@@ -1,5 +1,8 @@
 import os
 import logging
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 
 import numpy as np
 import svgwrite
@@ -9,6 +12,8 @@ import lyrics
 from rnn import rnn
 from create_style import load_samples
 
+import os
+CHECKPOINT = 'checkpoints'
 
 class Hand(object):
 
@@ -16,7 +21,7 @@ class Hand(object):
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
         self.nn = rnn(
             log_dir='logs',
-            checkpoint_dir='checkpoints',
+            checkpoint_dir=CHECKPOINT,
             prediction_dir='predictions',
             learning_rates=[.0001, .00005, .00002],
             batch_sizes=[32, 64, 64],

@@ -23,7 +23,6 @@ def process_chars(chars):
     chars = drawing.encode_ascii(chars)[:MAX_CHAR_LEN]
     return chars
 
-
 def process_data(samples):
     strokes, chars = [], []
     for sample in samples:
