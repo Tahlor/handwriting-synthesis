@@ -5,6 +5,8 @@ data/raw/lineStrokes
 data/raw/original
 data/processed
 archidata/
+.ipynb_checkpoints/
+checkpoints/
 
 logs
 predictions
