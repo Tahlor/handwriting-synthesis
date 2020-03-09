@@ -1,5 +1,5 @@
 import demo
-demo.CHECKPOINT = "checkpoint/pretrained"
+demo.CHECKPOINT = "checkpoint/original"
 from demo import *
 from drawing import alphabet
 import json
