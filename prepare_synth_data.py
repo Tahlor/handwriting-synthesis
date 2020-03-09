@@ -9,7 +9,6 @@ def load_data(path):
     samples = np.load(path, allow_pickle=True)
     return samples
 
-
 def process_stroke(stroke):
     sps = stroke[:, -1]
     stroke[:, -1] = np.where(np.diff(np.insert(sps, 0, 0)) > 0.5, 1, 0)

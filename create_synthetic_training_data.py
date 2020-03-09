@@ -1,3 +1,5 @@
+import demo
+demo.CHECKPOINT = "checkpoint/pretrained"
 from demo import *
 from drawing import alphabet
 import json
@@ -28,11 +30,31 @@ def get_lines(path='raw_text_10000.txt', n=100000):
     return lines
 
 
-if __name__ == "__main__":
+punc = [";",":",",",".","!",'"',"'"]
+char_set = ["i","i","i","I","t","t","t","T","F","H","K","f",'E',"A","B","J","o","p","g","y","s","S","x"]
+def get_invented_line():
+    line = ""
+    line_length = np.random.randint(14, 35)
+
+    while len(line) < line_length:
+        word_length = np.random.randint(2,7)
+        word = ""
+        for letter in range(word_length):
+            word += char_set[np.random.randint(0,len(char_set))]
+
+        # Punctuation
+        if np.random.randint(0,4)==0:
+            word += punc[np.random.randint(0, len(punc))]
+        line += word + " "
+    return line
+
+
+def process():
     hand = Hand()
     # usage demo
-    for i in range(10):
-        lines = get_lines(n=10000)
+    for i in range(5):
+        #lines = get_lines(n=10000)
+        lines = [get_invented_line() for n in range(10000)]
         biases = list(np.random.rand(len(lines)))
         styles = list(np.random.randint(13, size=len(lines)))
 
@@ -47,3 +69,7 @@ if __name__ == "__main__":
         data = [{'text': line, 'stroke': stroke.tolist()} for line, stroke in zip(lines, strokes)]
         with open(f'train_synth_{i}.json', 'w') as fp:
             json.dump(data, fp)
+
+if __name__ == "__main__":
+    print(get_invented_line())
+    process()

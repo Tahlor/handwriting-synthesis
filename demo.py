@@ -1,7 +1,7 @@
 import os
 import logging
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+#os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+#os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 
 import numpy as np
@@ -13,7 +13,7 @@ from rnn import rnn
 from create_style import load_samples
 
 import os
-CHECKPOINT = 'checkpoints'
+CHECKPOINT = 'original'
 
 class Hand(object):
 
