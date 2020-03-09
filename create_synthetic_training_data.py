@@ -1,6 +1,6 @@
 import demo
 from tqdm import tqdm
-demo.CHECKPOINT = "checkpoints/original"
+CHECKPOINT = "checkpoints/original"
 
 from demo import *
 from drawing import alphabet
@@ -51,7 +51,7 @@ def get_invented_line():
 
 
 def process():
-    hand = Hand()
+    hand = Hand(checkpoint="checkpoints/original")
     # usage demo
     vers = "random"
     for i in range(5):
