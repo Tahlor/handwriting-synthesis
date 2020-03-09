@@ -1,8 +1,8 @@
 import os
 import logging
+from tqdm import tqdm
 #os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-#os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 import numpy as np
 import svgwrite
@@ -132,7 +132,7 @@ class Hand(object):
         dwg.add(dwg.rect(insert=(0, 0), size=(view_width, view_height), fill='white'))
 
         initial_coord = np.array([0, -(3*line_height / 4)])
-        for i, (offsets, line, color, width) in enumerate(zip(strokes, lines, stroke_colors, stroke_widths)):
+        for i, (offsets, line, color, width) in tqdm(enumerate(zip(strokes, lines, stroke_colors, stroke_widths))):
 
             if not line:
                 initial_coord[1] -= line_height

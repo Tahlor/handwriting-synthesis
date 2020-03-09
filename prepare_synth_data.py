@@ -2,7 +2,12 @@ import numpy as np
 import drawing
 from drawing import MAX_CHAR_LEN, MAX_STROKE_LEN
 
-DATA = "archidata/all_data.npy"
+"""
+Takes strokes recovered from offline data and prepares them to be used as training data
+
+"""
+
+DATA = "archidata/all_data_v2.npy"
 #DATA = "archidata/0.npy"
 
 def load_data(path):
