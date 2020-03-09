@@ -45,7 +45,7 @@ class TFBaseModel(object):
             training steps.
         num_validation_batches:  Number of batches to be used in validation evaluation at each step.
         log_dir: Directory where logs are written.
-        checkpoint_dir: Directory where checkpoints are saved.
+        checkpoint_dir: Directory where original are saved.
         prediction_dir: Directory where predictions/outputs are saved.
     """
 
@@ -69,7 +69,7 @@ class TFBaseModel(object):
         loss_averaging_window=100,
         validation_batch_size=64,
         log_dir='logs',
-        checkpoint_dir='checkpoints',
+        checkpoint_dir='original',
         prediction_dir='predictions',
     ):
 
