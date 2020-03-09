@@ -13,7 +13,7 @@ from rnn import rnn
 from create_style import load_samples
 
 import os
-CHECKPOINT = 'original'
+CHECKPOINT = 'checkpoints/original'
 
 class Hand(object):
 

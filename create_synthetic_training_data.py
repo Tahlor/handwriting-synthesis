@@ -1,4 +1,5 @@
 import demo
+from tqdm import tqdm
 demo.CHECKPOINT = "checkpoints/original"
 from demo import *
 from drawing import alphabet
@@ -54,7 +55,7 @@ def process():
     vers = "random"
     for i in range(5):
         if vers=="random":
-            lines = [get_invented_line() for n in range(10000)]
+            lines = [get_invented_line() for n in tqdm(range(10000))]
         else:
             lines = get_lines(n=10000)
 
