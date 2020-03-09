@@ -17,11 +17,11 @@ CHECKPOINT = 'checkpoints/original'
 
 class Hand(object):
 
-    def __init__(self):
+    def __init__(self, checkpoint=CHECKPOINT):
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
         self.nn = rnn(
             log_dir='logs',
-            checkpoint_dir=CHECKPOINT,
+            checkpoint_dir=checkpoint,
             prediction_dir='predictions',
             learning_rates=[.0001, .00005, .00002],
             batch_sizes=[32, 64, 64],
@@ -166,7 +166,15 @@ class Hand(object):
 
 
 if __name__ == '__main__':
-    hand = Hand()
+    import argparse
+    from pathlib import Path
+    import re, warnings
+
+    parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
+    parser.add_argument("--checkpoint_folder", type=str, help="Folder of checkpoints", default='checkpoints')
+    args = parser.parse_args()
+
+    hand = Hand(args.checkpoint_folder)
 
     # usage demo
     lines = [
