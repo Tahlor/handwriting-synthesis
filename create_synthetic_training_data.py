@@ -1,9 +1,8 @@
 import demo
-demo.CHECKPOINT = "checkpoint/original"
+demo.CHECKPOINT = "checkpoints/original"
 from demo import *
 from drawing import alphabet
 import json
-
 
 def get_lines(path='raw_text_10000.txt', n=100000):
     with open(path, 'r') as f:
@@ -52,9 +51,13 @@ def get_invented_line():
 def process():
     hand = Hand()
     # usage demo
+    vers = "random"
     for i in range(5):
-        #lines = get_lines(n=10000)
-        lines = [get_invented_line() for n in range(10000)]
+        if vers=="random":
+            lines = [get_invented_line() for n in range(10000)]
+        else:
+            lines = get_lines(n=10000)
+
         biases = list(np.random.rand(len(lines)))
         styles = list(np.random.randint(13, size=len(lines)))
 
@@ -67,7 +70,7 @@ def process():
             only_strokes=True
         )
         data = [{'text': line, 'stroke': stroke.tolist()} for line, stroke in zip(lines, strokes)]
-        with open(f'train_synth_{i}.json', 'w') as fp:
+        with open(f'train_synth_{vers}_{i}.json', 'w') as fp:
             json.dump(data, fp)
 
 if __name__ == "__main__":
