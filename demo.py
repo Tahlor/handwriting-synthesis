@@ -42,6 +42,7 @@ class Hand(object):
             output_mixture_components=20,
             attention_mixture_components=10
         )
+        print(f"Loading from {CHECKPOINT}")
         self.nn.restore()
 
     def write(self, filename, lines, biases=None, styles=None, stroke_colors=None, stroke_widths=None, return_strokes=False, only_strokes=False):

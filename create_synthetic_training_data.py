@@ -1,6 +1,7 @@
 import demo
 from tqdm import tqdm
 demo.CHECKPOINT = "checkpoints/original"
+
 from demo import *
 from drawing import alphabet
 import json

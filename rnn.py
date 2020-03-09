@@ -212,12 +212,33 @@ class rnn(TFBaseModel):
 
 
 if __name__ == '__main__':
+    import argparse
+    from pathlib import Path
+    import re, warnings
+
+    parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
+    parser.add_argument("--checkpoint_folder", type=str, help="Folder of checkpoints", default='checkpoints')
+    parser.add_argument("--warm_start", type=str, help="The iteration number to use from the checkpoints", default="max")
+    args = parser.parse_args()
+
+    if args.warm_start=="max":
+        nums = []
+        try:
+            for c in Path(args.checkpoint_folder).glob("model-*"):
+                matches = re.findall("([0-9]+)", c.stem)[0]
+                if matches:
+                    nums.append(int(matches[0]))
+            args.warm_start = max(nums)
+        except:
+            warnings.warn("Couldn't find checkpoint")
+            args.warm_start = 0
+
     dr = DataReader(data_dir='data/processed/')
 
     nn = rnn(
         reader=dr,
         log_dir='logs',
-        checkpoint_dir='checkpoints',
+        checkpoint_dir=args.checkpoint_folder,
         prediction_dir='predictions',
         learning_rates=[.0002, .00005, .00002],
         batch_sizes=[32, 64, 64],
@@ -226,7 +247,7 @@ if __name__ == '__main__':
         validation_batch_size=32,
         optimizer='rms',
         num_training_steps=100000,
-        warm_start_init_step=23020,
+        warm_start_init_step=args.warm_start,
         regularization_constant=0.0,
         keep_prob=1.0,
         enable_parameter_averaging=False,
