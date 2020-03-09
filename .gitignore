@@ -6,7 +6,7 @@ data/raw/original
 data/processed
 archidata/
 .ipynb_checkpoints/
-checkpoints/
+#checkpoints/
 
 logs
 predictions
