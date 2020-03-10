@@ -136,6 +136,7 @@ class Hand(object):
 
     def _finalize_strokes(self, strokes):
         for i, offsets in tqdm(enumerate(strokes)):
+            offsets[:, :2] *= 1.5
             curr_strokes = drawing.offsets_to_coords(offsets)
             curr_strokes = drawing.denoise(curr_strokes)
             curr_strokes[:, :2] = drawing.align(curr_strokes[:, :2])
@@ -164,7 +165,7 @@ class Hand(object):
         initial_coord = np.array([0, -(3*line_height / 4)])
         for i, (offsets, line, color, width) in tqdm(enumerate(zip(strokes, lines, stroke_colors, stroke_widths))):
 
-            if not line:
+            if not line: # insert return character
                 initial_coord[1] -= line_height
                 continue
 

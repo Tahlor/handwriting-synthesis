@@ -72,7 +72,7 @@ def process(vers="random"):
         styles = list(np.random.randint(13, size=len(lines)))
 
         strokes = hand.write(
-            filename='test.svg',
+            filename=f'test{i}.svg',
             lines=lines,
             biases=biases,
             styles=styles,
