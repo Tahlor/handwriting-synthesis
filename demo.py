@@ -3,7 +3,7 @@ import os
 import logging
 from tqdm import tqdm
 #os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+#os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 import numpy as np
 import svgwrite

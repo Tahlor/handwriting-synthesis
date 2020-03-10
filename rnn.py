@@ -15,7 +15,7 @@ from tf_utils import time_distributed_dense_layer
 Run to initiate training
 Change warm_start_init_step to the most recent checkpoint
 """
-
+#os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 class DataReader(object):
 
@@ -215,7 +215,7 @@ if __name__ == '__main__':
     import argparse
     from pathlib import Path
     import re, warnings
-
+    import shlex
     parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
     parser.add_argument("--checkpoint_folder", type=str, help="Folder of checkpoints", default='checkpoints/original')
     parser.add_argument("--warm_start", type=str, help="The iteration number to use from the checkpoints", default="max")
@@ -225,6 +225,11 @@ if __name__ == '__main__':
 
     if args.warm_start=="max":
         args.warm_start = get_max_checkpoint(args.checkpoint_folder)
+    elif args.warm_start.isdigit():
+        args.warm_start = int(args.warm_start)
+    else:
+        raise Exception(f"Unknwon warm start {args.warm_start}")
+    #args.checkpoint_folder = "./checkpoints/no_pretrain_v1"
 
     dr = DataReader(data_dir=get_folder('data/processed/'))
 
