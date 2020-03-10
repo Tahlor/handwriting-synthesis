@@ -67,7 +67,7 @@ class Hand(object):
                     )
 
         strokes = self._sample(lines, biases=biases, styles=styles)
-        strokes = self._draw(strokes, lines, filename, stroke_colors=stroke_colors, stroke_widths=stroke_widths, return_strokes=return_strokes, only_strokes=only_strokes)
+        self._draw(strokes, lines, filename, stroke_colors=stroke_colors, stroke_widths=stroke_widths, return_strokes=return_strokes, only_strokes=only_strokes)
         if return_strokes:
             return strokes
 

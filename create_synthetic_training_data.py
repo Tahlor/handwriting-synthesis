@@ -74,7 +74,9 @@ def process(vers="random"):
             return_strokes=True,
             only_strokes=True
         )
+
         data = [{'text': line, 'stroke': stroke.tolist()} for line, stroke in zip(lines, strokes)]
+
         with open(f'train_synth_{vers}_{i}.json', 'w') as fp:
             json.dump(data, fp)
 
