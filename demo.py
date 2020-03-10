@@ -77,6 +77,10 @@ class Hand(object):
         strokes = self._sample(lines, biases=biases, styles=styles)
         if draw:
             self._draw(strokes, lines, (self.img_dir / filename).as_posix(), stroke_colors=stroke_colors, stroke_widths=stroke_widths)
+        else:
+            # Just draw one sample one
+            self._draw(strokes[:3], lines, (self.img_dir / filename).as_posix(), stroke_colors=stroke_colors,
+                       stroke_widths=stroke_widths)
         final_strokes = list(self._finalize_strokes(strokes))
         return final_strokes
 
@@ -213,7 +217,7 @@ if __name__ == '__main__':
 
     print("Usage demo...")
     hand.write(
-        filename='img/usage_demo.svg',
+        filename='usage_demo.svg',
         lines=lines,
         biases=biases,
         styles=styles,
@@ -228,7 +232,7 @@ if __name__ == '__main__':
 
     print("All star...")
     hand.write(
-        filename='img/all_star.svg',
+        filename='all_star.svg',
         lines=lines,
         biases=biases,
         styles=styles,
@@ -241,7 +245,7 @@ if __name__ == '__main__':
     styles = np.cumsum(np.array([len(i) for i in lines]) == 0).astype(int)
 
     hand.write(
-        filename='img/downtown.svg',
+        filename='downtown.svg',
         lines=lines,
         biases=biases,
         styles=styles,
@@ -254,7 +258,7 @@ if __name__ == '__main__':
     styles = [7 for i in lines]
 
     hand.write(
-        filename='img/give_up.svg',
+        filename='give_up.svg',
         lines=lines,
         biases=biases,
         styles=styles,
