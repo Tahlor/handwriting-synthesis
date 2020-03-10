@@ -67,9 +67,8 @@ class Hand(object):
                     )
 
         strokes = self._sample(lines, biases=biases, styles=styles)
-        self._draw(strokes, lines, filename, stroke_colors=stroke_colors, stroke_widths=stroke_widths, return_strokes=return_strokes, only_strokes=only_strokes)
-        if return_strokes:
-            return strokes
+        strokes = self._draw(strokes, lines, filename, stroke_colors=stroke_colors, stroke_widths=stroke_widths)
+        return strokes
 
     def _sample(self, lines, biases=None, styles=None):
         num_samples = len(lines)
@@ -121,7 +120,7 @@ class Hand(object):
         samples = [sample[~np.all(sample == 0.0, axis=1)] for sample in samples]
         return samples
 
-    def _draw(self, strokes, lines, filename, stroke_colors=None, stroke_widths=None, return_strokes=False, only_strokes=False):
+    def _draw(self, strokes, lines, filename, stroke_colors=None, stroke_widths=None, only_strokes=True):
         stroke_colors = stroke_colors or ['black']*len(lines)
         stroke_widths = stroke_widths or [2]*len(lines)
 
@@ -162,8 +161,8 @@ class Hand(object):
             dwg.add(path)
 
             initial_coord[1] -= line_height
-
         dwg.save()
+        return strokes
 
 
 if __name__ == '__main__':

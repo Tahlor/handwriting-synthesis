@@ -3,6 +3,7 @@ import demo
 from tqdm import tqdm
 
 CHECKPOINT = get_folder("./checkpoints/gen_training_data")
+
 #os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 from demo import *
@@ -54,12 +55,14 @@ def get_invented_line():
 
 
 def process(vers="random"):
+    number = 1 if is_dalai() else 10000
+
     hand = Hand(checkpoint=CHECKPOINT)
     # usage demo
 
     for i in range(5):
         if vers=="random":
-            lines = [get_invented_line() for n in tqdm(range(10000))]
+            lines = [get_invented_line() for n in tqdm(range(number))]
         else:
             lines = get_lines(n=10000)
 
@@ -77,7 +80,7 @@ def process(vers="random"):
 
         data = [{'text': line, 'stroke': stroke.tolist()} for line, stroke in zip(lines, strokes)]
 
-        with open(f'train_synth_{vers}_{i}.json', 'w') as fp:
+        with open(Path(CHECKPOINT) / f'train_synth_{vers}_{i}.json', 'w') as fp:
             json.dump(data, fp)
 
 if __name__ == "__main__":

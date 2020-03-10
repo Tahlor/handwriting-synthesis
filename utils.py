@@ -1,6 +1,19 @@
 import warnings, re
 from pathlib import Path
 import os
+import socket
+
+def get_computer():
+    return socket.gethostname()
+
+def is_galois():
+    return get_computer() == "Galois"
+
+def is_dalai():
+    if get_computer() == "DalaiLama":
+        os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+        return True
+    return False
 
 
 
