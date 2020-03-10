@@ -79,5 +79,6 @@ def process():
             json.dump(data, fp)
 
 if __name__ == "__main__":
-    print(get_invented_line())
+    for i in range(10):
+        print(get_invented_line())
     process()
