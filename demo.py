@@ -43,6 +43,9 @@ class Hand(object):
             output_mixture_components=20,
             attention_mixture_components=10
         )
+        self.checkpoint_dir = Path(checkpoint)
+        self.img_dir = (self.checkpoint_dir / "img")
+        self.img_dir.mkdir(exist_ok=True, parents=True)
         print(f"Loading from {checkpoint}")
         self.nn.restore()
 
@@ -73,7 +76,7 @@ class Hand(object):
 
         strokes = self._sample(lines, biases=biases, styles=styles)
         if draw:
-            self._draw(strokes, lines, filename, stroke_colors=stroke_colors, stroke_widths=stroke_widths)
+            self._draw(strokes, lines, (self.img_dir / filename).as_posix(), stroke_colors=stroke_colors, stroke_widths=stroke_widths)
         final_strokes = list(self._finalize_strokes(strokes))
         return final_strokes
 
@@ -208,6 +211,7 @@ if __name__ == '__main__':
     stroke_colors = ['red', 'green', 'black', 'blue']
     stroke_widths = [1, 2, 1, 2]
 
+    print("Usage demo...")
     hand.write(
         filename='img/usage_demo.svg',
         lines=lines,
@@ -222,6 +226,7 @@ if __name__ == '__main__':
     biases = [.75 for i in lines]
     styles = [12 for i in lines]
 
+    print("All star...")
     hand.write(
         filename='img/all_star.svg',
         lines=lines,
@@ -229,6 +234,7 @@ if __name__ == '__main__':
         styles=styles,
     )
 
+    print("Thousand Miles...")
     # demo number 2 - fixed bias, varying style
     lines = lyrics.downtown.split("\n")
     biases = [.75 for i in lines]
@@ -241,6 +247,7 @@ if __name__ == '__main__':
         styles=styles,
     )
 
+    print("Never gonna give you up...")
     # demo number 3 - varying bias, fixed style
     lines = lyrics.give_up.split("\n")
     biases = .2*np.flip(np.cumsum([len(i) == 0 for i in lines]), 0)
