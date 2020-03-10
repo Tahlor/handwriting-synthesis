@@ -53,10 +53,10 @@ def get_invented_line():
     return line
 
 
-def process():
+def process(vers="random"):
     hand = Hand(checkpoint=CHECKPOINT)
     # usage demo
-    vers = "random"
+
     for i in range(5):
         if vers=="random":
             lines = [get_invented_line() for n in tqdm(range(10000))]

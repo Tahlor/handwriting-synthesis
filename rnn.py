@@ -219,6 +219,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
     parser.add_argument("--checkpoint_folder", type=str, help="Folder of checkpoints", default='checkpoints/original')
     parser.add_argument("--warm_start", type=str, help="The iteration number to use from the checkpoints", default="max")
+    parser.add_argument("--clip", type=int, help="Clipping", default=10)
+
     args = parser.parse_args()
 
     args.checkpoint_folder = get_folder(args.checkpoint_folder)
@@ -251,7 +253,7 @@ if __name__ == '__main__':
         enable_parameter_averaging=False,
         min_steps_to_checkpoint=2000,
         log_interval=20,
-        grad_clip=10,
+        grad_clip=args.clip,
         lstm_size=400,
         output_mixture_components=20,
         attention_mixture_components=10
