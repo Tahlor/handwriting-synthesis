@@ -1,3 +1,4 @@
+from utils import *
 import os
 import logging
 from tqdm import tqdm
@@ -20,7 +21,7 @@ class Hand(object):
     def __init__(self, checkpoint=CHECKPOINT):
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
         self.nn = rnn(
-            log_dir='logs',
+            log_dir=f'{checkpoint}/logs',
             checkpoint_dir=checkpoint,
             prediction_dir='predictions',
             learning_rates=[.0001, .00005, .00002],

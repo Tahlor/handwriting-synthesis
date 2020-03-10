@@ -69,7 +69,7 @@ class TFBaseModel(object):
         loss_averaging_window=100,
         validation_batch_size=64,
         log_dir='logs',
-        checkpoint_dir='original',
+        checkpoint_dir='checkpoints/original',
         prediction_dir='predictions',
     ):
 

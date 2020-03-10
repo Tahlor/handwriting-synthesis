@@ -1,6 +1,6 @@
 from __future__ import print_function
 import os
-
+from utils import *
 import numpy as np
 import tensorflow as tf
 
@@ -221,23 +221,16 @@ if __name__ == '__main__':
     parser.add_argument("--warm_start", type=str, help="The iteration number to use from the checkpoints", default="max")
     args = parser.parse_args()
 
-    if args.warm_start=="max":
-        nums = []
-        try:
-            for c in Path(args.checkpoint_folder).glob("model-*"):
-                matches = re.findall("([0-9]+)", c.stem)[0]
-                if matches:
-                    nums.append(int(matches[0]))
-            args.warm_start = max(nums)
-        except:
-            warnings.warn("Couldn't find checkpoint")
-            args.warm_start = 0
+    args.checkpoint_folder = get_folder(args.checkpoint_folder)
 
-    dr = DataReader(data_dir='data/processed/')
+    if args.warm_start=="max":
+        args.warm_start = get_max_checkpoint(args.checkpoint_folder)
+
+    dr = DataReader(data_dir=get_folder('data/processed/'))
 
     nn = rnn(
         reader=dr,
-        log_dir='logs',
+        log_dir=f'{args.checkpoint_folder}/logs',
         checkpoint_dir=args.checkpoint_folder,
         prediction_dir='predictions',
         learning_rates=[.0002, .00005, .00002],

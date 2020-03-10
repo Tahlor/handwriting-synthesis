@@ -1,6 +1,9 @@
+from utils import *
 import demo
 from tqdm import tqdm
-CHECKPOINT = "checkpoints/original"
+
+CHECKPOINT = get_folder("./checkpoints/original")
+#os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 from demo import *
 from drawing import alphabet
@@ -51,7 +54,7 @@ def get_invented_line():
 
 
 def process():
-    hand = Hand(checkpoint="checkpoints/original")
+    hand = Hand(checkpoint=CHECKPOINT)
     # usage demo
     vers = "random"
     for i in range(5):

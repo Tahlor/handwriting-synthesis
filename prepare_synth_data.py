@@ -1,13 +1,16 @@
+from utils import *
 import numpy as np
 import drawing
 from drawing import MAX_CHAR_LEN, MAX_STROKE_LEN
+
+#os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 """
 Takes strokes recovered from offline data and prepares them to be used as training data
 
 """
 
-DATA = "archidata/all_data_v2.npy"
+DATA = get_folder("archidata/all_data_v2.npy")
 #DATA = "archidata/0.npy"
 
 def load_data(path):
@@ -62,7 +65,8 @@ if __name__ == "__main__":
         c[i, :len(char)] = char
         c_len[i] = len(char)
 
-    np.save('data/processed/x.npy', x)
-    np.save('data/processed/x_len.npy', x_len)
-    np.save('data/processed/c.npy', c)
-    np.save('data/processed/c_len.npy', c_len)
+    root = get_folder()
+    np.save(root+'data/processed/x.npy', x)
+    np.save(root+'data/processed/x_len.npy', x_len)
+    np.save(root+'data/processed/c.npy', c)
+    np.save(root+'data/processed/c_len.npy', c_len)
