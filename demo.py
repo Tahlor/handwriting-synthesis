@@ -72,9 +72,9 @@ class Hand(object):
             self.validate_line(line, line_num, valid_char_set)
 
         strokes = self._sample(lines, biases=biases, styles=styles)
-        final_strokes = list(self._finalize_strokes(strokes))
         if draw:
             self._draw(strokes, lines, filename, stroke_colors=stroke_colors, stroke_widths=stroke_widths)
+        final_strokes = list(self._finalize_strokes(strokes))
         return final_strokes
 
     def _sample(self, lines, biases=None, styles=None):
