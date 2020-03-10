@@ -28,7 +28,7 @@ def get_max_checkpoint(checkpoint_folder):
         for c in Path(checkpoint_folder).glob("model-*"):
             matches = re.findall("([0-9]+)", c.stem)[0]
             if matches:
-                nums.append(int(matches[0]))
+                nums.append(int(matches))
         warm_start = max(nums)
     except:
         warnings.warn("Couldn't find checkpoint")
@@ -39,3 +39,4 @@ def get_max_checkpoint(checkpoint_folder):
 if __name__=="__main__":
     print(project_root())
     print(get_folder("data"))
+    print(get_max_checkpoint("./checkpoints/original"))
