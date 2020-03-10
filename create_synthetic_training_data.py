@@ -2,7 +2,7 @@ from utils import *
 import demo
 from tqdm import tqdm
 
-CHECKPOINT = get_folder("./checkpoints/original")
+CHECKPOINT = get_folder("./checkpoints/gen_training_data")
 #os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 from demo import *
