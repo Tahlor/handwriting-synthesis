@@ -46,29 +46,36 @@ class Hand(object):
         print(f"Loading from {checkpoint}")
         self.nn.restore()
 
-    def write(self, filename, lines, biases=None, styles=None, stroke_colors=None, stroke_widths=None, return_strokes=False, only_strokes=False):
-        valid_char_set = set(drawing.alphabet)
-        for line_num, line in enumerate(lines):
-            if len(line) > 75:
+    @staticmethod
+    def validate_line(line, line_num, valid_char_set):
+        if len(line) > 75:
+            raise ValueError(
+                (
+                    "Each line must be at most 75 characters. "
+                    "Line {} contains {}"
+                ).format(line_num, len(line))
+            )
+
+        for char in line:
+            if char not in valid_char_set:
                 raise ValueError(
                     (
-                        "Each line must be at most 75 characters. "
-                        "Line {} contains {}"
-                    ).format(line_num, len(line))
+                        "Invalid character {} detected in line {}. "
+                        "Valid character set is {}"
+                    ).format(char, line_num, valid_char_set)
                 )
 
-            for char in line:
-                if char not in valid_char_set:
-                    raise ValueError(
-                        (
-                            "Invalid character {} detected in line {}. "
-                            "Valid character set is {}"
-                        ).format(char, line_num, valid_char_set)
-                    )
+
+    def write(self, filename, lines, biases=None, styles=None, stroke_colors=None, stroke_widths=None, draw=True):
+        valid_char_set = set(drawing.alphabet)
+        for line_num, line in enumerate(lines):
+            self.validate_line(line, line_num, valid_char_set)
 
         strokes = self._sample(lines, biases=biases, styles=styles)
-        strokes = self._draw(strokes, lines, filename, stroke_colors=stroke_colors, stroke_widths=stroke_widths)
-        return strokes
+        final_strokes = list(self._finalize_strokes(strokes))
+        if draw:
+            self._draw(strokes, lines, filename, stroke_colors=stroke_colors, stroke_widths=stroke_widths)
+        return final_strokes
 
     def _sample(self, lines, biases=None, styles=None):
         num_samples = len(lines)
@@ -120,7 +127,22 @@ class Hand(object):
         samples = [sample[~np.all(sample == 0.0, axis=1)] for sample in samples]
         return samples
 
-    def _draw(self, strokes, lines, filename, stroke_colors=None, stroke_widths=None, only_strokes=True):
+    def _finalize_strokes(self, strokes):
+        for i, offsets in tqdm(enumerate(strokes)):
+            curr_strokes = drawing.offsets_to_coords(offsets)
+            curr_strokes = drawing.denoise(curr_strokes)
+            curr_strokes[:, :2] = drawing.align(curr_strokes[:, :2])
+
+            # Normalize
+            curr_strokes[:, 1] -= np.min(curr_strokes[:, 1])
+            curr_strokes[:, :2] /= np.max(curr_strokes[:, 1])
+
+            # Convert end points to start points
+            # curr_strokes[1:, 2] = curr_strokes[:-1, 2]
+
+            yield curr_strokes
+
+    def _draw(self, strokes, lines, filename, stroke_colors=None, stroke_widths=None):
         stroke_colors = stroke_colors or ['black']*len(lines)
         stroke_widths = stroke_widths or [2]*len(lines)
 
@@ -143,9 +165,7 @@ class Hand(object):
             curr_strokes = drawing.offsets_to_coords(offsets)
             curr_strokes = drawing.denoise(curr_strokes)
             curr_strokes[:, :2] = drawing.align(curr_strokes[:, :2])
-            if only_strokes:
-                strokes[i] = curr_strokes
-                continue
+
 
             curr_strokes[:, 1] *= -1
             curr_strokes[:, :2] -= curr_strokes[:, :2].min() + initial_coord

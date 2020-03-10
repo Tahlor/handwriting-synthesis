@@ -34,8 +34,7 @@ def get_lines(path='raw_text_10000.txt', n=100000):
                 j += 1
     return lines
 
-
-punc = [";",":",",",".","!",'"',"'"]
+punc = [",",".","!",'"',"'"]
 char_set = ["i","i","i","I","t","t","t","T","F","H","K","f",'E',"A","B","J","o","p","g","y","s","S","x"]
 def get_invented_line():
     line = ""
@@ -55,6 +54,9 @@ def get_invented_line():
 
 
 def process(vers="random"):
+    # TESTING = True
+    # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
     number = 1 if is_dalai() else 10000
 
     hand = Hand(checkpoint=CHECKPOINT)
@@ -74,8 +76,7 @@ def process(vers="random"):
             lines=lines,
             biases=biases,
             styles=styles,
-            return_strokes=True,
-            only_strokes=True
+            draw=False
         )
 
         data = [{'text': line, 'stroke': stroke.tolist()} for line, stroke in zip(lines, strokes)]
