@@ -172,7 +172,7 @@ if __name__ == '__main__':
     import re, warnings
 
     parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
-    parser.add_argument("--checkpoint_folder", type=str, help="Folder of checkpoints", default='checkpoints')
+    parser.add_argument("--checkpoint_folder", type=str, help="Folder of checkpoints", default='checkpoints/original')
     args = parser.parse_args()
 
     hand = Hand(args.checkpoint_folder)

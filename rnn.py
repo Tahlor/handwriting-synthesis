@@ -217,7 +217,7 @@ if __name__ == '__main__':
     import re, warnings
 
     parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
-    parser.add_argument("--checkpoint_folder", type=str, help="Folder of checkpoints", default='checkpoints')
+    parser.add_argument("--checkpoint_folder", type=str, help="Folder of checkpoints", default='checkpoints/original')
     parser.add_argument("--warm_start", type=str, help="The iteration number to use from the checkpoints", default="max")
     args = parser.parse_args()
 

@@ -16,7 +16,11 @@ def project_root(set_root=True):
     return current_directory
 
 def get_folder(folder="."):
-    return (project_root() / folder).as_posix() + "/"
+    path = (project_root() / folder)
+    if path.exists() and path.is_file():
+        return path.as_posix()
+    else:
+        return (project_root() / folder).as_posix() + "/"
 
 def get_max_checkpoint(checkpoint_folder):
     nums = []
