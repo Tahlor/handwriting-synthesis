@@ -57,7 +57,7 @@ def process(vers="random"):
     # TESTING = True
     # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-    number = 1 if is_dalai() else 10000
+    number = 1 if is_dalai() else 1000
 
     hand = Hand(checkpoint=CHECKPOINT)
     # usage demo
@@ -68,7 +68,7 @@ def process(vers="random"):
         else:
             lines = get_lines(n=10000)
 
-        biases = list(np.random.rand(len(lines)))
+        biases = list(np.random.rand(len(lines))*3+.5)
         styles = list(np.random.randint(13, size=len(lines)))
 
         strokes = hand.write(
