@@ -182,7 +182,7 @@ def is_taylor():
     return get_computer() in ("Galois", "brodie")
 
 def convert_gts_to_synth_format(gt):
-
+    pass
 
 def kill_gpu_hogs(force=False):
     if is_taylor():
