@@ -212,6 +212,8 @@ class rnn(TFBaseModel):
 
 
 if __name__ == '__main__':
+    import utils
+    utils.kill_gpu_hogs()
     import argparse
     from pathlib import Path
     import re, warnings

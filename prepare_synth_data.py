@@ -33,19 +33,21 @@ def process_stroke(stroke):
     offsets = offsets[:drawing.MAX_STROKE_LEN]
     offsets = drawing.normalize(offsets)
 
-    test = offsets.copy()
-    test[:,:2] = np.cumsum(test[:,:2], axis=0)
+    # Make sure we can draw it
+    if False:
+        test = offsets.copy()
+        test[:,:2] = np.cumsum(test[:,:2], axis=0)
 
-    test[:,1] -= np.min(test[:,1])
-    test[:,:2] /= np.max(test[:,1])
-    test = eos_to_sos(test)
+        test[:,1] -= np.min(test[:,1])
+        test[:,:2] /= np.max(test[:,1])
+        test = eos_to_sos(test)
 
-    img = utils.draw_from_gt(test, use_stroke_number=False, show=True)
+        img = utils.draw_from_gt(test, use_stroke_number=False, show=True)
 
-    from matplotlib import pyplot as plt
-    plt.imshow(img)
-    plt.show()
-    stop
+        from matplotlib import pyplot as plt
+        plt.imshow(img)
+        plt.show()
+
     return offsets
 
 def process_chars(chars):

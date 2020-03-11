@@ -5,6 +5,7 @@ from pathlib import Path
 import os
 import socket
 import numpy as np
+import signal
 
 def get_computer():
     return socket.gethostname()
@@ -176,6 +177,21 @@ def gt_to_pil_format(instance, stroke_number=True, has_start_points=True):
     else:
         one_liner = [instance.flatten()]
         return one_liner
+
+def kill_gpu_hogs(force=False):
+    from subprocess import Popen, DEVNULL, STDOUT, check_output
+    pid = os.getpid()
+    exclusion_words = "visdom", "jupyter", "grep"
+    find_processes_command = f"ps all | grep python"  + f" | awk '!/{pid}/'"
+    x = check_output([find_processes_command], shell=True)
+    all_python_processes = x.decode().split("\n")[:-1]
+    for process in all_python_processes:
+        if not any([ew in process.lower() for ew in exclusion_words]):
+            try:
+                os.kill(int(process.split()[2]), signal.SIGTERM)
+            except:
+                pass
+
 
 
 if __name__=="__main__":
