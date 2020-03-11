@@ -2,6 +2,7 @@ from utils import *
 import numpy as np
 import drawing
 from drawing import MAX_CHAR_LEN, MAX_STROKE_LEN
+import utils
 
 #os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
@@ -18,15 +19,33 @@ def load_data(path):
     return samples
 
 def process_stroke(stroke):
-    sps = stroke[:, -1]
-    stroke[:, -1] = np.where(np.diff(np.insert(sps, 0, 0)) > 0.5, 1, 0)
+    new_stroke = stroke.copy()
+    sps = new_stroke[:, -1]
 
-    coords = drawing.align(stroke)
+
+    new_stroke[:, -1] = np.round(new_stroke[:, -1])
+    new_stroke = sos_to_eos(new_stroke)
+
+
+    coords = drawing.align(new_stroke)
     coords = drawing.denoise(coords)
     offsets = drawing.coords_to_offsets(coords)
     offsets = offsets[:drawing.MAX_STROKE_LEN]
     offsets = drawing.normalize(offsets)
 
+    test = offsets.copy()
+    test[:,:2] = np.cumsum(test[:,:2], axis=0)
+
+    test[:,1] -= np.min(test[:,1])
+    test[:,:2] /= np.max(test[:,1])
+    test = eos_to_sos(test)
+
+    img = utils.draw_from_gt(test, use_stroke_number=False, show=True)
+
+    from matplotlib import pyplot as plt
+    plt.imshow(img)
+    plt.show()
+    stop
     return offsets
 
 def process_chars(chars):

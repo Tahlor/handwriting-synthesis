@@ -57,7 +57,7 @@ def process(vers="random"):
     # TESTING = True
     # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-    number = 1 if is_dalai() else 1000
+    number = 1 if is_dalai() else 10000
 
     hand = Hand(checkpoint=CHECKPOINT)
     # usage demo
@@ -87,4 +87,4 @@ def process(vers="random"):
 if __name__ == "__main__":
     for i in range(10):
         print(get_invented_line())
-    process()
+    process("normal")

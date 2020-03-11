@@ -143,10 +143,14 @@ class Hand(object):
 
             # Normalize
             curr_strokes[:, 1] -= np.min(curr_strokes[:, 1])
-            curr_strokes[:, :2] /= np.max(curr_strokes[:, 1])
+            max_y = np.max(curr_strokes[:, 1])
+            if max_y:
+                curr_strokes[:, :2] /= np.max(curr_strokes[:, 1])
+            else:
+                warnings.warn(f"max y is zero {curr_strokes}")
 
             # Convert end points to start points
-            # curr_strokes[1:, 2] = curr_strokes[:-1, 2]
+            #curr_strokes = eos_to_sos(curr_strokes)
 
             yield curr_strokes
 
