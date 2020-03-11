@@ -3,7 +3,7 @@ import os
 import logging
 from tqdm import tqdm
 #os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-#os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+#os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 import numpy as np
 import svgwrite
@@ -81,7 +81,7 @@ class Hand(object):
             # Just draw one sample one
             self._draw(strokes[:3], lines, (self.img_dir / filename).as_posix(), stroke_colors=stroke_colors,
                        stroke_widths=stroke_widths)
-        final_strokes = list(self._finalize_strokes(strokes))
+        final_strokes = list(self._finalize_strokes(strokes, lines))
         return final_strokes
 
     def _sample(self, lines, biases=None, styles=None):
@@ -134,8 +134,16 @@ class Hand(object):
         samples = [sample[~np.all(sample == 0.0, axis=1)] for sample in samples]
         return samples
 
-    def _finalize_strokes(self, strokes):
+    def _finalize_strokes(self, strokes, lines=None):
+        """
+        Lines just used to determine if line is trivial/vacuous
+        """
         for i, offsets in tqdm(enumerate(strokes)):
+            if lines and not lines[i]:
+                print("Empty line? Stroke:")
+                print(offsets[:10])
+                continue
+
             offsets[:, :2] *= 1.5
             curr_strokes = drawing.offsets_to_coords(offsets)
             curr_strokes = drawing.denoise(curr_strokes)

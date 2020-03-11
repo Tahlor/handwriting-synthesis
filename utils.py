@@ -181,6 +181,9 @@ def gt_to_pil_format(instance, stroke_number=True, has_start_points=True):
 def is_taylor():
     return get_computer() in ("Galois", "brodie")
 
+def convert_gts_to_synth_format(gt):
+
+
 def kill_gpu_hogs(force=False):
     if is_taylor():
         from subprocess import Popen, DEVNULL, STDOUT, check_output
