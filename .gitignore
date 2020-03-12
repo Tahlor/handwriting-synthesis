@@ -9,8 +9,13 @@ new_data/
 .ipynb_checkpoints/
 *.slurm
 
+
 checkpoints/*
 !checkpoints/original/
+
+checkpoints/original/img/offline_styles
+styles/sample_offline_styles.npy
+styles/all_offline_styles.npy
 
 logs
 predictions

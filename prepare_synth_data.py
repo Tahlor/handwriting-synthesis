@@ -19,36 +19,7 @@ def load_data(path):
     return samples
 
 def process_stroke(stroke):
-    new_stroke = stroke.copy()
-    sps = new_stroke[:, -1]
-
-
-    new_stroke[:, -1] = np.round(new_stroke[:, -1])
-    new_stroke = sos_to_eos(new_stroke)
-
-
-    coords = drawing.align(new_stroke)
-    coords = drawing.denoise(coords)
-    offsets = drawing.coords_to_offsets(coords)
-    offsets = offsets[:drawing.MAX_STROKE_LEN]
-    offsets = drawing.normalize(offsets)
-
-    # Make sure we can draw it
-    if False:
-        test = offsets.copy()
-        test[:,:2] = np.cumsum(test[:,:2], axis=0)
-
-        test[:,1] -= np.min(test[:,1])
-        test[:,:2] /= np.max(test[:,1])
-        test = eos_to_sos(test)
-
-        img = utils.draw_from_gt(test, use_stroke_number=False, show=True)
-
-        from matplotlib import pyplot as plt
-        plt.imshow(img)
-        plt.show()
-
-    return offsets
+    return utils.convert_gts_to_synth_format(stroke)
 
 def process_chars(chars):
     chars = chars.strip()
@@ -60,7 +31,7 @@ def process_chars(chars):
 def process_data(samples):
     strokes, chars = [], []
     for sample in samples:
-        stroke = process_stroke(sample['stroke'][:, 0:-1])
+        stroke = convert_gts_to_synth_format(sample['stroke'])
         char = process_chars(sample['text'])
         if char is not None:
             strokes.append(stroke)
@@ -68,7 +39,6 @@ def process_data(samples):
         else:
             continue
     return strokes, chars
-
 
 if __name__ == "__main__":
     data = load_data(DATA)
