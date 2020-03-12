@@ -223,8 +223,8 @@ if __name__ == '__main__':
     biases = [1.5] * len(lines)
     #styles = np.load("styles/all_offline_styles.npy", allow_pickle=True)
     #styles = np.load("styles/sample_offline_styles.npy", allow_pickle=True)
-    root = Path("/media/data/GitHub/simple_hwr/")
-    data_path = root / "RESULTS/OFFLINE_PREDS/good/imgs/current/eval/data/all_data.npy"
+    #root = Path("/media/data/GitHub/simple_hwr/")
+    data_path = Path("archidata/all_data_v2.npy")
     styles = np.load(data_path, allow_pickle=True)
 
     hand = Hand(args.checkpoint_folder)
