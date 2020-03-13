@@ -134,7 +134,11 @@ def normalize(offsets):
     """
     offsets = np.copy(offsets)
     median = np.median(np.linalg.norm(offsets[:, :2], axis=1))
-    offsets[:, :2] /= median
+    if median != 0:
+        offsets[:, :2] /= median
+    else:
+        pass
+
     return offsets
 
 

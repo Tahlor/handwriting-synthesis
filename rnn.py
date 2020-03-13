@@ -3,6 +3,7 @@ import os
 from utils import *
 import numpy as np
 import tensorflow as tf
+from datetime import datetime
 
 import drawing
 from data_frame import DataFrame
@@ -19,16 +20,28 @@ Change warm_start_init_step to the most recent checkpoint
 
 class DataReader(object):
 
-    def __init__(self, data_dir):
-        data_cols = ['x', 'x_len', 'c', 'c_len']
+    def __init__(self, data_dir, output_dir):
+        _data_cols = ['x', 'x_len', 'c', 'c_len', 'text']
+        data_cols = []
+
+        # Make sure all of the columns exist
+        for i in _data_cols:
+            if os.path.exists(os.path.join(data_dir, '{}.npy'.format(i))):
+                data_cols.append(i)
+
         data = [np.load(os.path.join(data_dir, '{}.npy'.format(i))) for i in data_cols]
 
         self.test_df = DataFrame(columns=data_cols, data=data)
         self.train_df, self.val_df = self.test_df.train_test_split(train_size=0.95, random_state=2018)
+        date_str = datetime.now().strftime('%Y-%m-%d_%H-%M')
 
+        np.save(Path(output_dir) / date_str, self.val_df.dict)
+        # Load the strokes
+        # np.load("../checkpoints/original/2020-03-13_15-03.npy", allow_pickle=True).item()["x"]
         print('train size', len(self.train_df))
         print('val size', len(self.val_df))
         print('test size', len(self.test_df))
+
 
     def train_batch_generator(self, batch_size):
         return self.batch_generator(
@@ -236,7 +249,7 @@ if __name__ == '__main__':
         raise Exception(f"Unknwon warm start {args.warm_start}")
     #args.checkpoint_folder = "./checkpoints/no_pretrain_v1"
 
-    dr = DataReader(data_dir=get_folder('data/processed/'))
+    dr = DataReader(data_dir=get_folder('data/processed/'), output_dir=args.checkpoint_folder)
 
     nn = rnn(
         reader=dr,

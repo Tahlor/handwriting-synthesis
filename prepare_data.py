@@ -1,4 +1,5 @@
 from __future__ import print_function
+from pathlib import Path
 import os
 from xml.etree import ElementTree
 
@@ -35,8 +36,8 @@ def get_ascii_sequences(filename):
     sequences = [i.strip() for i in sequences.split('\n')]
     lines = sequences[sequences.index('CSR:') + 2:]
     lines = [line.strip() for line in lines if line.strip()]
-    lines = [drawing.encode_ascii(line)[:drawing.MAX_CHAR_LEN] for line in lines]
-    return lines
+    ascii_lines = [drawing.encode_ascii(line)[:drawing.MAX_CHAR_LEN] for line in lines]
+    return ascii_lines, lines
 
 
 def collect_data():
@@ -54,6 +55,7 @@ def collect_data():
     blacklist = set(np.load('data/blacklist.npy', allow_pickle=True))
 
     stroke_fnames, transcriptions, writer_ids = [], [], []
+
     for i, fname in enumerate(fnames):
         print(i, fname)
         if fname == 'data/raw/ascii/z01/z01-000/z01-000z.txt':
@@ -65,9 +67,10 @@ def collect_data():
 
         line_stroke_dir = head.replace('ascii', 'lineStrokes')
         line_stroke_fname_prefix = os.path.split(head)[-1] + last_letter + '-'
-
+        print(line_stroke_dir)
         if not os.path.isdir(line_stroke_dir):
             continue
+
         line_stroke_fnames = sorted([f for f in os.listdir(line_stroke_dir)
                                      if f.startswith(line_stroke_fname_prefix)])
         if not line_stroke_fnames:
@@ -84,7 +87,7 @@ def collect_data():
         else:
             writer_id = int('0')
 
-        ascii_sequences = get_ascii_sequences(fname)
+        ascii_sequences, text = get_ascii_sequences(fname)
         assert len(ascii_sequences) == len(line_stroke_fnames)
 
         for ascii_seq, line_stroke_fname in zip(ascii_sequences, line_stroke_fnames):
@@ -95,12 +98,11 @@ def collect_data():
             transcriptions.append(ascii_seq)
             writer_ids.append(writer_id)
 
-    return stroke_fnames, transcriptions, writer_ids
+    return stroke_fnames, transcriptions, writer_ids, text
 
-
-if __name__ == '__main__':
+def main():
     print('traversing data directory...')
-    stroke_fnames, transcriptions, writer_ids = collect_data()
+    stroke_fnames, transcriptions, writer_ids, text = collect_data()
 
     print('dumping to numpy arrays...')
     x = np.zeros([len(stroke_fnames), drawing.MAX_STROKE_LEN, 3], dtype=np.float32)
@@ -113,7 +115,8 @@ if __name__ == '__main__':
     for i, (stroke_fname, c_i, w_id_i) in enumerate(zip(stroke_fnames, transcriptions, writer_ids)):
         if i % 200 == 0:
             print(i, '\t', '/', len(stroke_fnames))
-        x_i = get_stroke_sequence(stroke_fname)
+        coords, offsets = get_stroke_sequence(stroke_fname)
+        x_i = offsets
         valid_mask[i] = ~np.any(np.linalg.norm(x_i[:, :2], axis=1) > 60)
 
         x[i, :len(x_i), :] = x_i
@@ -124,11 +127,23 @@ if __name__ == '__main__':
 
         w_id[i] = w_id_i
 
-    if not os.path.isdir('data/processed'):
-        os.makedirs('data/processed')
+    output = Path('data/processed/original')
+    output.mkdir(exist_ok=True, parents=True)
 
-    np.save('data/processed/x.npy', x[valid_mask])
-    np.save('data/processed/x_len.npy', x_len[valid_mask])
-    np.save('data/processed/c.npy', c[valid_mask])
-    np.save('data/processed/c_len.npy', c_len[valid_mask])
-    np.save('data/processed/w_id.npy', w_id[valid_mask])
+    np.save(output / 'x.npy', x[valid_mask])
+    np.save(output / 'x_len.npy', x_len[valid_mask])
+    np.save(output / 'c.npy', c[valid_mask])
+    np.save(output / 'c_len.npy', c_len[valid_mask])
+    np.save(output / 'w_id.npy', w_id[valid_mask])
+    np.save(output / 'text.npy', text)
+
+def combine():
+    original = Path("data/processed/original")
+    new = Path("data/processed")
+    output = Path("data/processed/processed_combined")
+
+    for file in ['x.npy', "x_len.npy", 'c.npy', 'c_len.npy', 'w_id.npy', 'text.npy']:
+        np.save(output / file, np.concatenate([np.load(original / file), np.load(new / file)], axis=0))
+
+if __name__ == '__main__':
+    combine()

@@ -30,6 +30,9 @@ class DataFrame(object):
         self.dict = dict(zip(self.columns, self.data))
         self.idx = np.arange(self.length)
 
+    def to_numpy(self):
+        pd.DataFrame.to_numpy(self)
+
     def shapes(self):
         return pd.Series(dict(zip(self.columns, [mat.shape for mat in self.data])))
 

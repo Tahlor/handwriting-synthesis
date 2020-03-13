@@ -225,7 +225,11 @@ if __name__ == '__main__':
     #styles = np.load("styles/sample_offline_styles.npy", allow_pickle=True)
     #root = Path("/media/data/GitHub/simple_hwr/")
     data_path = Path("archidata/all_data_v2.npy")
-    styles = np.load(data_path, allow_pickle=True)
+    styles = np.load(data_path, allow_pickle=True) # this is a list of dicts with keys: strokes, text
+
+    # This is a dict of parallel arrays; "x" for strokes, "text" for text
+    #styles = np.load("../checkpoints/original/2020-03-13_15-03.npy", allow_pickle=True).item()
+
 
     hand = Hand(args.checkpoint_folder)
     output = (Path(args.checkpoint_folder) / "img/offline_styles")
