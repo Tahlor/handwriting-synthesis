@@ -142,7 +142,8 @@ def combine():
     new = Path("data/processed")
     output = Path("data/processed/processed_combined")
 
-    for file in ['x.npy', "x_len.npy", 'c.npy', 'c_len.npy', 'w_id.npy', 'text.npy']:
+    for file in ['x.npy', "x_len.npy", 'c.npy', 'c_len.npy', 'text.npy']: #'w_id.npy',
+        print(file)
         np.save(output / file, np.concatenate([np.load(original / file), np.load(new / file)], axis=0))
 
 if __name__ == '__main__':
