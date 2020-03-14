@@ -29,6 +29,10 @@ class DataReader(object):
             if os.path.exists(os.path.join(data_dir, '{}.npy'.format(i))):
                 data_cols.append(i)
 
+        f = []
+        for i in data_cols:
+            f.append(np.load(os.path.join(data_dir, '{}.npy'.format(i))))
+
         data = [np.load(os.path.join(data_dir, '{}.npy'.format(i))) for i in data_cols]
 
         self.test_df = DataFrame(columns=data_cols, data=data)
@@ -241,6 +245,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     args.checkpoint_folder = get_folder(args.checkpoint_folder)
+    args.processed_data = get_folder(args.processed_data)
 
     if args.warm_start=="max":
         args.warm_start = get_max_checkpoint(args.checkpoint_folder)
@@ -250,7 +255,7 @@ if __name__ == '__main__':
         raise Exception(f"Unknwon warm start {args.warm_start}")
     #args.checkpoint_folder = "./checkpoints/no_pretrain_v1"
 
-    dr = DataReader(data_dir=get_folder(args.processed_data), output_dir=args.checkpoint_folder)
+    dr = DataReader(data_dir=args.processed_data, output_dir=args.checkpoint_folder)
 
     nn = rnn(
         reader=dr,

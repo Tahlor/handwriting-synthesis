@@ -31,22 +31,29 @@ def process_chars(chars):
     return chars
 
 def process_data(samples):
-    strokes, chars = [], []
+    strokes, chars, ids, text = [], [], [], []
+
+    #callback = lambda x: all_results.extend(x) if not x is None else None
+
     for sample in tqdm(samples):
+        #pool.apply_async(func=self.worker_wrapper, args=(data_dict[i],), callback=callback)
+
         stroke = convert_gts_to_synth_format(sample['stroke'])
         char = process_chars(sample['text'])
         id = "-".join(sample['id'].split("-")[:2])
         if char is not None:
             strokes.append(stroke)
             chars.append(char)
+            ids.append(id)
+            text.append(sample['text'])
         else:
             continue
-    return strokes, chars, id
+    return strokes, chars, ids, text
 
 if __name__ == "__main__":
     data = load_data(DATA)
-    strokes, chars, w_id = process_data(data)
-    text = [d["text"] for d in data]
+    strokes, chars, w_id, text= process_data(data)
+
     x = np.zeros([len(strokes), drawing.MAX_STROKE_LEN, 3], dtype=np.float32)
     x_len = np.zeros([len(strokes)], dtype=np.int16)
     c = np.zeros([len(strokes), drawing.MAX_CHAR_LEN], dtype=np.int8)
