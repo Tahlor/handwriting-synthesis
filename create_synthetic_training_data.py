@@ -62,13 +62,13 @@ def process(vers="random"):
     hand = Hand(checkpoint=CHECKPOINT)
     # usage demo
 
-    for i in range(5):
+    for i in range(1000):
         if vers=="random":
             lines = [get_invented_line() for n in tqdm(range(number))]
         else:
-            lines = get_lines(n=10000)
+            lines = get_lines(n=100)
 
-        biases = list(np.random.rand(len(lines))*3+.5)
+        biases = list(np.random.rand(len(lines))*3+.3)
         styles = list(np.random.randint(13, size=len(lines)))
 
         strokes = hand.write(
@@ -87,4 +87,4 @@ def process(vers="random"):
 if __name__ == "__main__":
     for i in range(10):
         print(get_invented_line())
-    process("normal")
+    process("random")
