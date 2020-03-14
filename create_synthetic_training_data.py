@@ -53,22 +53,22 @@ def get_invented_line():
     return line
 
 
-def process(vers="random"):
+def process(vers="random", checkpoint=CHECKPOINT):
     # TESTING = True
     # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-    number = 1 if is_dalai() else 10000
+    number = 1 if is_dalai() else 1000
 
-    hand = Hand(checkpoint=CHECKPOINT)
+    hand = Hand(checkpoint=checkpoint)
     # usage demo
 
-    for i in range(1000):
+    for i in range(100):
         if vers=="random":
             lines = [get_invented_line() for n in tqdm(range(number))]
         else:
             lines = get_lines(n=100)
 
-        biases = list(np.random.rand(len(lines))*3+.3)
+        biases = list(np.random.rand(len(lines))*2)
         styles = list(np.random.randint(13, size=len(lines)))
 
         strokes = hand.write(
@@ -85,6 +85,12 @@ def process(vers="random"):
             json.dump(data, fp)
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
+    parser.add_argument("--checkpoint_folder", type=str, help="Folder of checkpoints", default=CHECKPOINT)
+    parser.add_argument("--variant", type=str, help="'random' for random letters", default='normal')
+
+    args = parser.parse_args()
+
     for i in range(10):
         print(get_invented_line())
-    process("random")
+    process(vers=args.variant, checkpoint=args.checkpoint_folder)
