@@ -1,3 +1,5 @@
+import time
+import multiprocessing
 from tqdm import tqdm
 from utils import *
 import numpy as np
@@ -30,24 +32,51 @@ def process_chars(chars):
     chars = drawing.encode_ascii(chars)[:MAX_CHAR_LEN]
     return chars
 
+def process(_sample):
+    _stroke = convert_gts_to_synth_format(_sample['stroke'])
+    _char = process_chars(_sample['text'])
+    _id = "-".join(_sample['id'].split("-")[:2])
+    return {'stroke': _stroke, 'char': _char, 'id': _id, 'text':_sample['text']}
+
 def process_data(samples):
+    global counter, strokes, chars, ids, text
     strokes, chars, ids, text = [], [], [], []
+    counter = 0
 
-    #callback = lambda x: all_results.extend(x) if not x is None else None
+    poolcount = multiprocessing.cpu_count()
+    pool = multiprocessing.Pool(processes=poolcount)
 
+    counter = 0
+
+    def callback(stroke_dict):
+        global counter
+        counter += 1
+        if len(stroke_dict["stroke"]) > drawing.MAX_STROKE_LEN:
+            warnings.warn("stroke too long")
+        elif stroke_dict["char"] is not None:
+            strokes.append(stroke_dict["stroke"])
+            chars.append(stroke_dict["char"])
+            ids.append(stroke_dict["id"])
+            text.append(stroke_dict['text'])
+
+    # LOOP
     for sample in tqdm(samples):
-        #pool.apply_async(func=self.worker_wrapper, args=(data_dict[i],), callback=callback)
-
-        stroke = convert_gts_to_synth_format(sample['stroke'])
-        char = process_chars(sample['text'])
-        id = "-".join(sample['id'].split("-")[:2])
-        if char is not None:
-            strokes.append(stroke)
-            chars.append(char)
-            ids.append(id)
-            text.append(sample['text'])
+        if True:
+            pool.apply_async(func=process, args=(sample,), callback=callback)
         else:
-            continue
+            callback(process(sample))
+    pool.close()
+
+    # Track pool
+    previous = 0
+    with tqdm(total=len(samples)) as pbar:
+        while previous < len(samples):
+            time.sleep(1)
+            new = counter
+            pbar.update(new - previous)
+            previous = new
+    pool.join()
+
     return strokes, chars, ids, text
 
 if __name__ == "__main__":

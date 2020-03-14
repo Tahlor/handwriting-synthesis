@@ -54,7 +54,7 @@ def get_max_checkpoint(checkpoint_folder):
     return warm_start
 
 
-def draw_from_gt(gt, show=True, save_path=None, min_width=None, height=61,
+def draw_from_gt(gt, show=True, save_path=None, min_width=None, height=60,
                  right_padding="random", linewidth=None, max_width=5, color=0, alpha=False,
                  use_stroke_number=None, plot_points=False):
     """ RETURNS DATA IN "LOWER" origin format!!!
@@ -189,16 +189,28 @@ def convert_gts_to_synth_format(stroke):
     if np.any(stroke[:,-1]>=2):
         raise Exception("Input data is in stroke number format")
 
+    # Round SOS
     new_stroke[:, -1] = np.round(new_stroke[:, -1])
+
+    # Convert to EOS
     new_stroke = sos_to_eos(new_stroke)
 
     coords = drawing.align(new_stroke)
     coords = drawing.denoise(coords)
     offsets = drawing.coords_to_offsets(coords)
-    offsets = offsets[:drawing.MAX_STROKE_LEN]
+    #offsets = offsets[:drawing.MAX_STROKE_LEN]
     offsets = drawing.normalize(offsets)
     return offsets
 
+def convert_synth_offsets_to_gt(offsets):
+    test = offsets.copy()
+    test[:, :2] = np.cumsum(test[:, :2], axis=0)
+    test[:, 1] -= np.min(test[:, 1]) # min_y = 0
+    test[:, 0] -= np.min(test[:, 0]) # min_x = 0
+    test[:, :2] /= np.max(test[:, 1])
+    test = eos_to_sos(test)
+    test = test[1:] # remove the first 0,0 point
+    return test
 
 def kill_gpu_hogs(force=False):
     if is_taylor():
@@ -217,36 +229,33 @@ def kill_gpu_hogs(force=False):
 
 def plot_from_synth_format(offsets, show=False, save_path=None):
     show = True if save_path is None else show
-    test = offsets.copy()
-    test[:, :2] = np.cumsum(test[:, :2], axis=0)
-
-    test[:, 1] -= np.min(test[:, 1])
-    test[:, :2] /= np.max(test[:, 1])
-    test = eos_to_sos(test)
-
+    test = convert_synth_offsets_to_gt(offsets)
     return draw_from_gt(test, use_stroke_number=False, show=show, save_path=save_path, linewidth=2)
 
 def test_gt():
-    gt = np.load("archidata/all_data_v2.npy", allow_pickle=True)
-    offsets = convert_gts_to_synth_format(gt[0]["stroke"])
+    gt = np.load("archidata/all_data_v4.npy", allow_pickle=True)
+    item =gt[0]["stroke"]
+    print("max", np.max(item[:,0]))
 
-    test = offsets.copy()
-    test[:, :2] = np.cumsum(test[:, :2], axis=0)
-
-    test[:, 1] -= np.min(test[:, 1])
-    test[:, :2] /= np.max(test[:, 1])
-    test = eos_to_sos(test)
-
-    print(test)
+    print(item.shape)
+    img = draw_from_gt(item, use_stroke_number=False, show=True)
+    offsets = convert_gts_to_synth_format(item)
+    print(offsets.shape)
+    test = convert_synth_offsets_to_gt(offsets)
+    print(test.shape)
     img = draw_from_gt(test, use_stroke_number=False, show=True)
+    print("max", np.max(test[:,0]))
+    plt.hist(test[:,0])
+    plt.hist(offsets[:, 0])
 
-    plt.imshow(img)
+def get_widths():
+    gt = np.load("archidata/all_data_v4.npy", allow_pickle=True)
+    plt.hist([len(i["stroke"]) for i in gt])
     plt.show()
-
 
 if __name__=="__main__":
     print(project_root())
     print(get_folder("data"))
     print(get_max_checkpoint("./checkpoints/original"))
-
+    get_widths()
     test_gt()
