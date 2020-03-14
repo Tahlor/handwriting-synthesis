@@ -23,4 +23,5 @@ conda activate /fslhome/tarch/.conda/envs/tf16
 
 cd "/panfs/pan.fsl.byu.edu/scr/grp/fslg_hwr/handwriting-synthesis"
 which python
-python -u demo.py
+#python -u demo.py
+python -u create_synthetic_training_data.py
