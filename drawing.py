@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import savgol_filter
 from scipy.interpolate import interp1d
+import warnings
 
 alphabet = [
     '\x00', ' ', '!', '"', '#', "'", '(', ')', ',', '-', '.',
@@ -137,7 +138,7 @@ def normalize(offsets):
     if median != 0:
         offsets[:, :2] /= median
     else:
-        pass
+        warnings.warn("Median was zero, cannot norm")
 
     return offsets
 

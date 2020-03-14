@@ -2,7 +2,7 @@ from __future__ import print_function
 from pathlib import Path
 import os
 from xml.etree import ElementTree
-
+from tqdm import tqdm
 import numpy as np
 
 import drawing
@@ -54,10 +54,10 @@ def collect_data():
     # which the trained model assigned very low likelihood)
     blacklist = set(np.load('data/blacklist.npy', allow_pickle=True))
 
-    stroke_fnames, transcriptions, writer_ids = [], [], []
+    stroke_fnames, transcriptions, writer_ids, texts = [], [], [], []
 
-    for i, fname in enumerate(fnames):
-        print(i, fname)
+    for i, fname in enumerate(tqdm(fnames)):
+        #print(i, fname)
         if fname == 'data/raw/ascii/z01/z01-000/z01-000z.txt':
             continue
 
@@ -67,7 +67,7 @@ def collect_data():
 
         line_stroke_dir = head.replace('ascii', 'lineStrokes')
         line_stroke_fname_prefix = os.path.split(head)[-1] + last_letter + '-'
-        print(line_stroke_dir)
+        #print(line_stroke_dir)
         if not os.path.isdir(line_stroke_dir):
             continue
 
@@ -87,18 +87,20 @@ def collect_data():
         else:
             writer_id = int('0')
 
-        ascii_sequences, text = get_ascii_sequences(fname)
+        ascii_sequences, text_group = get_ascii_sequences(fname)
         assert len(ascii_sequences) == len(line_stroke_fnames)
 
-        for ascii_seq, line_stroke_fname in zip(ascii_sequences, line_stroke_fnames):
+        for ascii_seq, line_stroke_fname, text in zip(ascii_sequences, line_stroke_fnames, text_group):
             if line_stroke_fname in blacklist:
                 continue
 
             stroke_fnames.append(os.path.join(line_stroke_dir, line_stroke_fname))
             transcriptions.append(ascii_seq)
             writer_ids.append(writer_id)
+            texts.append(text)
+        assert len(texts) == len(stroke_fnames)
 
-    return stroke_fnames, transcriptions, writer_ids, text
+    return stroke_fnames, transcriptions, writer_ids, texts
 
 def main():
     print('traversing data directory...')
@@ -112,12 +114,10 @@ def main():
     w_id = np.zeros([len(stroke_fnames)], dtype=np.int16)
     valid_mask = np.zeros([len(stroke_fnames)], dtype=np.bool)
 
-    for i, (stroke_fname, c_i, w_id_i) in enumerate(zip(stroke_fnames, transcriptions, writer_ids)):
-        if i % 200 == 0:
-            print(i, '\t', '/', len(stroke_fnames))
+    for i, (stroke_fname, c_i, w_id_i) in enumerate(tqdm(zip(stroke_fnames, transcriptions, writer_ids), total=len(stroke_fnames))):
         coords, offsets = get_stroke_sequence(stroke_fname)
         x_i = offsets
-        valid_mask[i] = ~np.any(np.linalg.norm(x_i[:, :2], axis=1) > 60)
+        valid_mask[i] = ~np.any(np.linalg.norm(x_i[:, :2], axis=1) > 60) # exclude where bigger than 60
 
         x[i, :len(x_i), :] = x_i
         x_len[i] = len(x_i)
@@ -135,7 +135,7 @@ def main():
     np.save(output / 'c.npy', c[valid_mask])
     np.save(output / 'c_len.npy', c_len[valid_mask])
     np.save(output / 'w_id.npy', w_id[valid_mask])
-    np.save(output / 'text.npy', text)
+    np.save(output / 'text.npy', [t for i,t in enumerate(text) if valid_mask[i]])
 
 def combine():
     original = Path("data/processed/original")
@@ -144,7 +144,13 @@ def combine():
 
     #for file in ['x.npy', "x_len.npy", 'c.npy', 'c_len.npy', 'text.npy']: #'w_id.npy',
     for file in ['x.npy', "x_len.npy", 'c.npy', 'c_len.npy', 'text.npy', 'w_id.npy']:
-        np.save(output / file, np.concatenate([np.load(original / file), np.load(new / file)], axis=0))
+        np.save(output / file, np.concatenate([np.load(original / file, allow_pickle=True), np.load(new / file, allow_pickle=True)], axis=0))
 
 if __name__ == '__main__':
+    main()
     combine()
+    # x = np.load(Path("data/processed/original/text.npy"), allow_pickle=True)
+    # print(x.shape)
+    # y = np.load(Path("data/processed/original/x_len.npy"), allow_pickle=True)
+    # print(y.shape)
+    # print(x)
