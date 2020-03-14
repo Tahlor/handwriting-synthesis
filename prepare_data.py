@@ -143,11 +143,17 @@ def combine():
     output = Path("data/processed/processed_combined")
 
     #for file in ['x.npy', "x_len.npy", 'c.npy', 'c_len.npy', 'text.npy']: #'w_id.npy',
+    x = 0
     for file in ['x.npy', "x_len.npy", 'c.npy', 'c_len.npy', 'text.npy', 'w_id.npy']:
-        np.save(output / file, np.concatenate([np.load(original / file, allow_pickle=True), np.load(new / file, allow_pickle=True)], axis=0))
+        comb = np.concatenate([np.load(original / file, allow_pickle=True), np.load(new / file, allow_pickle=True)], axis=0)
+        np.save(output / file, comb)
 
+        if x:
+            assert len(comb) == x
+        else:
+            x = len(comb)
 if __name__ == '__main__':
-    main()
+    #main()
     combine()
     # x = np.load(Path("data/processed/original/text.npy"), allow_pickle=True)
     # print(x.shape)
