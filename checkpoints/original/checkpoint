@@ -1,2 +1,2 @@
-model_checkpoint_path: "/media/data/GitHub/handwriting-synthesis/checkpoints/original/model-17900"
-all_model_checkpoint_paths: "/media/data/GitHub/handwriting-synthesis/checkpoints/original/model-17900"
+model_checkpoint_path: "model-17900"
+all_model_checkpoint_paths: "model-17900"

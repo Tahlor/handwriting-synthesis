@@ -24,14 +24,16 @@ def is_dalai():
 
 def project_root(set_root=True):
     current_directory = Path(os.getcwd())
-
+    rel_path = "."
     while current_directory and current_directory.stem != "handwriting-synthesis":
         current_directory = current_directory.parent
+        rel_path += "/.."
 
     if set_root:
         os.chdir(current_directory.as_posix())
-
-    return current_directory
+        return Path(".")
+    else:
+        return Path(rel_path)
 
 def get_folder(folder="."):
     path = (project_root() / folder)

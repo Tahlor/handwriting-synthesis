@@ -205,7 +205,7 @@ class Hand(object):
 
 
 if __name__ == '__main__':
-    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
     import argparse
     from pathlib import Path
@@ -214,6 +214,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
     parser.add_argument("--checkpoint_folder", type=str, help="Folder of checkpoints", default='checkpoints/original')
     args = parser.parse_args()
+
+    args.checkpoint_folder = 'checkpoints/no_pretrain_v3'
+    args.checkpoint_folder = 'checkpoints/combined'
+    args.checkpoint_folder = 'checkpoints/with_pretrain_v4'
+
 
     # usage demo
     lines = [
@@ -224,7 +229,7 @@ if __name__ == '__main__':
     #styles = np.load("styles/all_offline_styles.npy", allow_pickle=True)
     #styles = np.load("styles/sample_offline_styles.npy", allow_pickle=True)
     #root = Path("/media/data/GitHub/simple_hwr/")
-    data_path = Path("archidata/all_data_v2.npy")
+    data_path = Path("archidata/all_data_v4.npy")
     styles = np.load(data_path, allow_pickle=True) # this is a list of dicts with keys: strokes, text
 
     # This is a dict of parallel arrays; "x" for strokes, "text" for text

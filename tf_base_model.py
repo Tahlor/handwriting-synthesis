@@ -321,6 +321,7 @@ class TFBaseModel(object):
         saver = self.saver_averaged if averaged else self.saver
         checkpoint_dir = self.checkpoint_dir_averaged if averaged else self.checkpoint_dir
         if not step:
+            print("checkpoint dir", checkpoint_dir)
             model_path = tf.train.latest_checkpoint(checkpoint_dir)
             logging.info('restoring model parameters from {}'.format(model_path))
             saver.restore(self.session, model_path)
