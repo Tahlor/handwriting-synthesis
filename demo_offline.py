@@ -240,7 +240,7 @@ if __name__ == '__main__':
         output = []
         for i in range(len(styles["x"])):
             d = {"stroke": styles["x"][i], "text": styles["text"][i],
-                 "author": styles["id"][i] if "id" in styles else i}
+                 "id": styles["id"][i] if "id" in styles else i}
             output.append(d)
         styles = output
     else:
