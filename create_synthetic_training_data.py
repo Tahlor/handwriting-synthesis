@@ -81,7 +81,7 @@ def process(vers="random", checkpoint=CHECKPOINT):
         if vers=="random":
             lines = [get_invented_line() for n in tqdm(range(number))]
         else:
-            lines = get_lines(n=100)
+            lines = get_lines(n=number)
 
         biases = list(np.random.rand(len(lines))*2)
         styles = list(np.random.randint(13, size=len(lines)))
