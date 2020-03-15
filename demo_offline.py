@@ -255,9 +255,9 @@ if __name__ == '__main__':
         if len(style["text"])>120:
             continue
         if using_test_set:
-            new_stroke = convert_gts_to_synth_format(style["stroke"][:,0:3])
-        else:
             new_stroke = style["stroke"]
+        else:
+            new_stroke = convert_gts_to_synth_format(style["stroke"][:, 0:3])
 
         style = {"author": style["id"], "stroke":new_stroke, "text":style["text"]}
         plot_from_synth_format(new_stroke, save_path=output/f'{style["author"]}_original.png')
