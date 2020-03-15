@@ -8,7 +8,7 @@
 #SBATCH --mail-type=BEGIN
 #SBATCH --mail-type=END
 #SBATCH --mail-type=FAIL
-#SBATCH --output="/panfs/pan.fsl.byu.edu/scr/grp/fslg_hwr/handwriting-synthesis/log_gen_synth_original.slurm"
+#SBATCH --output="/panfs/pan.fsl.byu.edu/scr/grp/fslg_hwr/handwriting-synthesis/slurm/log_gen_synth_normal.slurm"
 
 
 #%Module

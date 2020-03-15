@@ -8,8 +8,7 @@
 #SBATCH --mail-type=BEGIN
 #SBATCH --mail-type=END
 #SBATCH --mail-type=FAIL
-#SBATCH --output="log_gen_synth.slurm"
-
+#SBATCH --output="/panfs/pan.fsl.byu.edu/scr/grp/fslg_hwr/handwriting-synthesis/slurm/log_gen_synth_random.slurm"
 
 #%Module
 
@@ -24,4 +23,4 @@ conda activate /fslhome/tarch/.conda/envs/tf16
 cd "/panfs/pan.fsl.byu.edu/scr/grp/fslg_hwr/handwriting-synthesis"
 which python
 #python -u demo.py
-python -u create_synthetic_training_data.py
+python -u create_synthetic_training_data.py --variant "random"
