@@ -217,12 +217,12 @@ if __name__ == '__main__':
 
     args.checkpoint_folder = 'checkpoints/no_pretrain_v3'
     args.checkpoint_folder = 'checkpoints/combined'
-    args.checkpoint_folder = 'checkpoints/with_pretrain_v4'
+    args.checkpoint_folder = 'checkpoints/no_pretrain_v4'
 
 
     # usage demo
     lines = [
-        "Sphinx of black quartz: judge my vow."
+        "Sphinx of black quartz, judge my vow."
     ]
 
     biases = [1.5] * len(lines)

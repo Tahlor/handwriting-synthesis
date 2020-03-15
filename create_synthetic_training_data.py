@@ -34,21 +34,35 @@ def get_lines(path='raw_text_10000.txt', n=100000):
                 j += 1
     return lines
 
-punc = [",",".","!",'"',"'"]
-char_set = ["i","i","i","I","t","t","t","T","F","H","K","f",'E',"A","B","J","o","p","g","y","s","S","x"]
+punc = [",",".","!",'"',"'", ";", ":"]
+char_set = ["j","j","i","i","i","I","t","t","t","T","F","H","K","f",'E',"A","B","J","o","p","g","y","s","S","x","z"]*2
+alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+            'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
+            'y', 'z']
+char_set += alphabet
+
+def capitalize(letter):
+    # Capital
+    if np.random.randint(0, 5) == 0 and letter.upper() in drawing.alphabet:
+        return letter.upper()
+    else:
+        return letter
+
 def get_invented_line():
     line = ""
     line_length = np.random.randint(14, 35)
 
     while len(line) < line_length:
-        word_length = np.random.randint(2,7)
+        word_length = np.random.randint(1,10)
         word = ""
+
         for letter in range(word_length):
-            word += char_set[np.random.randint(0,len(char_set))]
+            word += capitalize(char_set[np.random.randint(0,len(char_set))])
 
         # Punctuation
         if np.random.randint(0,4)==0:
             word += punc[np.random.randint(0, len(punc))]
+
         line += word + " "
     return line
 
