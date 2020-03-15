@@ -262,7 +262,7 @@ if __name__ == '__main__':
         style = {"author": style["id"], "stroke":new_stroke, "text":style["text"]}
         plot_from_synth_format(new_stroke, save_path=output/f'{style["author"]}_original.png')
 
-        print(f"{style['author']}...")
+        print(f"Author, {style['author']}...")
         try:
             hand.write(
                 filename=f'offline_styles/{style["author"]}.svg',
