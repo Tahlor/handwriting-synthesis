@@ -3,12 +3,12 @@
 #SBATCH -C 'rhel7&pascal'
 #SBATCH --mem-per-cpu 6000
 #SBATCH --ntasks 8
-#SBATCH --time 26:15:00
+#SBATCH --time 36:15:00
 #SBATCH --mail-user=taylornarchibald@gmail.com   # email address
 #SBATCH --mail-type=BEGIN
 #SBATCH --mail-type=END
 #SBATCH --mail-type=FAIL
-#SBATCH --output="log_gen_synth.slurm"
+#SBATCH --output="/panfs/pan.fsl.byu.edu/scr/grp/fslg_hwr/handwriting-synthesis/log_gen_synth_original.slurm"
 
 
 #%Module
@@ -24,4 +24,4 @@ conda activate /fslhome/tarch/.conda/envs/tf16
 cd "/panfs/pan.fsl.byu.edu/scr/grp/fslg_hwr/handwriting-synthesis"
 which python
 #python -u demo.py
-python -u create_synthetic_training_data.py
+python -u create_synthetic_training_data.py --variant "normal"
