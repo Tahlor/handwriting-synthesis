@@ -213,39 +213,52 @@ if __name__ == '__main__':
     kill_gpu_hogs()
     parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
     parser.add_argument("--checkpoint_folder", type=str, help="Folder of checkpoints", default='checkpoints/original')
+    parser.add_argument("--style_path", type=str, help="Folder of style", default='archidata/all_data_v4.npy')
+
     args = parser.parse_args()
-
-    args.checkpoint_folder = 'checkpoints/no_pretrain_v3'
-    args.checkpoint_folder = 'checkpoints/combined'
-    args.checkpoint_folder = 'checkpoints/no_pretrain_v4'
-
 
     # usage demo
     lines = [
-        "Sphinx of black quartz, judge my vow."
+        "Sphinx of black quartz, judge my vow.",
+        "sphinx of black quartz, judge my vow.",
+        "SPHINx OF BLACK qUARTz, JUDGE MY VOW."
     ]
 
     biases = [1.5] * len(lines)
-    #styles = np.load("styles/all_offline_styles.npy", allow_pickle=True)
-    #styles = np.load("styles/sample_offline_styles.npy", allow_pickle=True)
-    #root = Path("/media/data/GitHub/simple_hwr/")
-    data_path = Path("archidata/all_data_v4.npy")
-    styles = np.load(data_path, allow_pickle=True) # this is a list of dicts with keys: strokes, text
 
-    # This is a dict of parallel arrays; "x" for strokes, "text" for text
-    #styles = np.load("../checkpoints/original/2020-03-13_15-03.npy", allow_pickle=True).item()
+    data_path = Path(args.style_path)
+    using_test_set = "archidata" not in data_path.as_posix()
+    suffix = "test" if using_test_set else "all"
 
+    if using_test_set:
+        if data_path.is_dir():
+            data_path = sorted(data_path.glob("*.npy"))[-1]
+            print(f"Using {data_path.as_posix()}")
+
+        # This is a dict of parallel arrays; "x" for strokes, "text" for text
+        styles = np.load(data_path, allow_pickle=True).item()
+        output = []
+        for i in range(len(styles["x"])):
+            d = {"stroke": styles["x"][i], "text": styles["text"][i],
+                 "author": styles["id"][i] if "id" in styles else i}
+            output.append(d)
+        styles = output
+    else:
+        styles = np.load(data_path, allow_pickle=True)  # this is a list of dicts with keys: strokes, text
 
     hand = Hand(args.checkpoint_folder)
-    output = (Path(args.checkpoint_folder) / "img/offline_styles")
+    output = (Path(args.checkpoint_folder) / f"img/offline_styles/{suffix}")
     output.mkdir(exist_ok=True, parents=True)
     assert output.exists()
 
-    for style in styles:
+    for i, style in enumerate(styles):
         if len(style["text"])>120:
             continue
+        if using_test_set:
+            new_stroke = convert_gts_to_synth_format(style["stroke"])
+        else:
+            new_stroke = style["stroke"]
 
-        new_stroke = convert_gts_to_synth_format(style["stroke"])
         style = {"author": style["id"], "stroke":new_stroke, "text":style["text"]}
         plot_from_synth_format(new_stroke, save_path=output/f'{style["author"]}_original.png')
 
@@ -259,6 +272,9 @@ if __name__ == '__main__':
             )
         except Exception as e:
             print(e)
+
+        if i > 100:
+            break
 
     # for i in range(len(styles))[::len(lines)]:
     #     current_styles_dict_list = styles[i:i+len(lines)]
