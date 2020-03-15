@@ -80,7 +80,7 @@ class Hand(object):
         else:
             # Just draw one sample one
             self._draw(strokes[:2], lines[:2], (self.img_dir / filename).as_posix())
-            
+
         final_strokes = list(self._finalize_strokes(strokes, lines))
         return final_strokes
 
@@ -269,7 +269,7 @@ if __name__ == '__main__':
                 filename=f'offline_styles/{style["author"]}.svg',
                 lines=lines,
                 biases=biases,
-                styles=[style],
+                styles=[style]*len(lines),
             )
         except Exception as e:
             print(e)
