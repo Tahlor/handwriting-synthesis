@@ -79,8 +79,8 @@ class Hand(object):
             self._draw(strokes, lines, (self.img_dir / filename).as_posix(), stroke_colors=stroke_colors, stroke_widths=stroke_widths)
         else:
             # Just draw one sample one
-            self._draw(strokes[:3], lines, (self.img_dir / filename).as_posix(), stroke_colors=stroke_colors,
-                       stroke_widths=stroke_widths)
+            self._draw(strokes[:2], lines[:2], (self.img_dir / filename).as_posix())
+            
         final_strokes = list(self._finalize_strokes(strokes, lines))
         return final_strokes
 
