@@ -88,7 +88,7 @@ class Hand(object):
         max_tsteps = 40*max([len(i) for i in lines])
         biases = biases if biases is not None else [0.5]*num_samples
 
-        x_prime = np.zeros([num_samples, 1200, 3])
+        x_prime = np.zeros([num_samples, 1600, 3])
         x_prime_len = np.zeros([num_samples])
         chars = np.zeros([num_samples, 120])
         chars_len = np.zeros([num_samples])
@@ -255,7 +255,7 @@ if __name__ == '__main__':
         if len(style["text"])>120:
             continue
         if using_test_set:
-            new_stroke = convert_gts_to_synth_format(style["stroke"])
+            new_stroke = convert_gts_to_synth_format(style["stroke"][:,0:3])
         else:
             new_stroke = style["stroke"]
 
