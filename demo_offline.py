@@ -1,3 +1,4 @@
+import traceback
 from utils import *
 import os
 import logging
@@ -272,6 +273,7 @@ if __name__ == '__main__':
             )
         except Exception as e:
             print(e)
+            traceback.print_exc()
 
         if i > 100:
             break
