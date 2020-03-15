@@ -266,7 +266,7 @@ if __name__ == '__main__':
         print(f"Author, {style['author']}...")
         try:
             hand.write(
-                filename=f'offline_styles/{style["author"]}.svg',
+                filename=output / f'{style["author"]}.svg',
                 lines=lines,
                 biases=biases,
                 styles=[style]*len(lines),
