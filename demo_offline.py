@@ -1,3 +1,4 @@
+import traceback
 from utils import *
 import os
 import logging
@@ -68,18 +69,18 @@ class Hand(object):
                 )
 
 
-    def write(self, filename, lines, biases=None, styles=None, stroke_colors=None, stroke_widths=None, draw=True):
+    def write(self, file_path, lines, biases=None, styles=None, stroke_colors=None, stroke_widths=None, draw=True):
         valid_char_set = set(drawing.alphabet)
         for line_num, line in enumerate(lines):
             self.validate_line(line, line_num, valid_char_set)
 
         strokes = self._sample(lines, biases=biases, styles=styles)
         if draw:
-            self._draw(strokes, lines, (self.img_dir / filename).as_posix(), stroke_colors=stroke_colors, stroke_widths=stroke_widths)
+            self._draw(strokes, lines, file_path.as_posix(), stroke_colors=stroke_colors, stroke_widths=stroke_widths)
         else:
             # Just draw one sample one
-            self._draw(strokes[:3], lines, (self.img_dir / filename).as_posix(), stroke_colors=stroke_colors,
-                       stroke_widths=stroke_widths)
+            self._draw(strokes[:2], lines[:2], file_path.as_posix())
+
         final_strokes = list(self._finalize_strokes(strokes, lines))
         return final_strokes
 
@@ -220,12 +221,12 @@ if __name__ == '__main__':
 
     # usage demo
     lines = [
-        "Sphinx of black quartz, judge my vow.",
-        "sphinx of black quartz, judge my vow.",
-        "SPHINx OF BLACK qUARTz, JUDGE MY VOW."
+        ". Sphinx of black quartz, judge my vow.",
+        ". sphinx of black quartz, judge my vow.",
+        ". SPHINx OF BLACK qUARTz, JUDGE MY VOW."
     ]
 
-    biases = [1.5] * len(lines)
+    biases = [.75] * len(lines)
 
     data_path = Path(args.style_path)
     using_test_set = "archidata" not in data_path.as_posix()
@@ -256,23 +257,24 @@ if __name__ == '__main__':
         if len(style["text"])>120:
             continue
         if using_test_set:
-            new_stroke = convert_gts_to_synth_format(style["stroke"][:,0:3])
-        else:
             new_stroke = style["stroke"]
+        else:
+            new_stroke = convert_gts_to_synth_format(style["stroke"][:, 0:3])
 
         style = {"author": style["id"], "stroke":new_stroke, "text":style["text"]}
-        plot_from_synth_format(new_stroke, save_path=output/f'{style["author"]}_original.png')
+        plot_from_synth_format(new_stroke, save_path=output / f'{style["author"]}_original.png')
 
-        print(f"{style['author']}...")
+        print(f"Author, {style['author']}...")
         try:
             hand.write(
-                filename=f'offline_styles/{style["author"]}.svg',
+                file_path=output / f'{style["author"]}.svg',
                 lines=lines,
                 biases=biases,
-                styles=[style],
+                styles=[style]*len(lines),
             )
         except Exception as e:
             print(e)
+            traceback.print_exc()
 
         if i > 100:
             break

@@ -276,3 +276,16 @@ if __name__ == '__main__':
         biases=biases,
         styles=styles,
     )
+
+    print("Sphinx...")
+    # demo number 3 - varying bias, fixed style
+    lines = [". Sphinx of black quartz, judge my vow."] * 13
+    biases = [1.5] * len(lines)
+    styles = np.cumsum(np.array([len(i) for i in lines]) == 0).astype(int)
+
+    hand.write(
+        filename='sphinx.svg',
+        lines=lines,
+        biases=biases,
+        styles=styles,
+    )

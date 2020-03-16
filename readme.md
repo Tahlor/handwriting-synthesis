@@ -25,7 +25,7 @@ stroke_widths = [1, 2, 1, 2]
 
 hand = Hand()
 hand.write(
-    filename='img/usage_demo.svg',
+    file_path='img/usage_demo.svg',
     lines=lines,
     biases=biases,
     styles=styles,
