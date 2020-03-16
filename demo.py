@@ -136,6 +136,7 @@ class Hand(object):
     def _finalize_strokes(self, strokes, lines=None):
         """
         Lines just used to determine if line is trivial/vacuous
+        DOES not convert EOS to SOS
         """
         for i, offsets in tqdm(enumerate(strokes)):
             if lines and not lines[i]:
@@ -152,7 +153,7 @@ class Hand(object):
             curr_strokes[:, 1] -= np.min(curr_strokes[:, 1])
             max_y = np.max(curr_strokes[:, 1])
             if max_y:
-                curr_strokes[:, :2] /= np.max(curr_strokes[:, 1])
+                curr_strokes[:, :2] /= max_y
             else:
                 warnings.warn(f"max y is zero {curr_strokes}")
 
@@ -179,7 +180,7 @@ class Hand(object):
             if not line: # insert return character
                 initial_coord[1] -= line_height
                 continue
-
+            offsets = offsets.copy()
             offsets[:, :2] *= 1.5
             curr_strokes = drawing.offsets_to_coords(offsets)
             curr_strokes = drawing.denoise(curr_strokes)

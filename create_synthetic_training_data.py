@@ -2,14 +2,13 @@ import argparse
 from utils import *
 import demo
 from tqdm import tqdm
+from demo import *
+from drawing import alphabet
+import json
 
 CHECKPOINT = get_folder("./checkpoints/gen_training_data")
 
 #os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-
-from demo import *
-from drawing import alphabet
-import json
 
 def get_lines(path='raw_text_10000.txt', n=100000):
     with open(path, 'r') as f:
@@ -84,7 +83,7 @@ def process(vers="random", checkpoint=CHECKPOINT):
             lines = get_lines(n=number)
 
         biases = list(np.random.rand(len(lines))*2)
-        styles = list(np.random.randint(13, size=len(lines)))
+        styles = list(np.random.randint(14, size=len(lines)))
 
         strokes = hand.write(
             filename=f'test_{vers}_{i}.svg',
