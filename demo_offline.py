@@ -220,12 +220,12 @@ if __name__ == '__main__':
 
     # usage demo
     lines = [
-        "Sphinx of black quartz, judge my vow.",
-        "sphinx of black quartz, judge my vow.",
-        "SPHINx OF BLACK qUARTz, JUDGE MY VOW."
+        ". Sphinx of black quartz, judge my vow.",
+        ". sphinx of black quartz, judge my vow.",
+        ". SPHINx OF BLACK qUARTz, JUDGE MY VOW."
     ]
 
-    biases = [1.5] * len(lines)
+    biases = [.75] * len(lines)
 
     data_path = Path(args.style_path)
     using_test_set = "archidata" not in data_path.as_posix()
