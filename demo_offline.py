@@ -222,11 +222,14 @@ if __name__ == '__main__':
     # usage demo
     lines = [
         ". Sphinx of black quartz, judge my vow.",
-        ". sphinx of black quartz, judge my vow.",
-        ". SPHINx OF BLACK qUARTz, JUDGE MY VOW."
-    ]
+        ". Jived fox nymph grabs quick waltz.",
+        ". Glib jocks quiz nymph to vex dwarf.",
+        ". How vexingly quick daft zebras jump!",
+        ". The five boxing wizards jump quickly.",
+        ". Pack my box with five dozen liquor jugs."
+    ] * 2
 
-    biases = [.75] * len(lines)
+    biases = np.random.rand(len(lines))*3+.2
 
     data_path = Path(args.style_path)
     using_test_set = "archidata" not in data_path.as_posix()
@@ -276,7 +279,7 @@ if __name__ == '__main__':
             print(e)
             traceback.print_exc()
 
-        if i > 100:
+        if i > 200:
             break
 
     # for i in range(len(styles))[::len(lines)]:
