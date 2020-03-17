@@ -224,7 +224,7 @@ if __name__ == '__main__':
         ". Sphinx of black quartz, judge my vow.",
         ". Jived fox nymph grabs quick waltz.",
         ". Glib jocks quiz nymph to vex dwarf.",
-        ". How vexingly quick daft zebras jump!",
+        ". How vexingly quick daft zebras jump.",
         ". The five boxing wizards jump quickly.",
         #". Pack my box with five dozen liquor jugs."
     ] * 2

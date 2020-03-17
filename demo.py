@@ -216,6 +216,29 @@ if __name__ == '__main__':
 
     hand = Hand(args.checkpoint_folder)
 
+
+    print("Sphinx...")
+    # demo number 3 - varying bias, fixed style
+    lines = [
+        ". Sphinx of black quartz, judge my vow.",
+        ". Jived fox nymph grabs quick waltz.",
+        ". Glib jocks quiz nymph to vex dwarf.",
+        ". How vexingly quick daft zebras jump.",
+        ". The five boxing wizards jump quickly.",
+        #". Pack my box with five dozen liquor jugs."
+    ] * 2
+
+    biases = np.random.rand(len(lines))*3+.2
+    styles = np.cumsum(np.array([len(i) for i in lines]) == 0).astype(int)
+
+    hand.write(
+        filename='sphinx.svg',
+        lines=lines,
+        biases=biases,
+        styles=styles,
+    )
+
+
     # usage demo
     lines = [
         "Now this is a story all about how",
@@ -277,15 +300,3 @@ if __name__ == '__main__':
         styles=styles,
     )
 
-    print("Sphinx...")
-    # demo number 3 - varying bias, fixed style
-    lines = [". Sphinx of black quartz, judge my vow."] * 13
-    biases = [1.5] * len(lines)
-    styles = np.cumsum(np.array([len(i) for i in lines]) == 0).astype(int)
-
-    hand.write(
-        filename='sphinx.svg',
-        lines=lines,
-        biases=biases,
-        styles=styles,
-    )
