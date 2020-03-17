@@ -226,7 +226,7 @@ if __name__ == '__main__':
         ". Glib jocks quiz nymph to vex dwarf.",
         ". How vexingly quick daft zebras jump!",
         ". The five boxing wizards jump quickly.",
-        ". Pack my box with five dozen liquor jugs."
+        #". Pack my box with five dozen liquor jugs."
     ] * 2
 
     biases = np.random.rand(len(lines))*3+.2
@@ -234,7 +234,8 @@ if __name__ == '__main__':
     data_path = Path(args.style_path)
     using_test_set = "archidata" not in data_path.as_posix()
     suffix = "test" if using_test_set else "all"
-
+    if suffix=="test":
+        STOP
     if using_test_set:
         if data_path.is_dir():
             data_path = sorted(data_path.glob("*.npy"))[-1]
