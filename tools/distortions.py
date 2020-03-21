@@ -1,4 +1,4 @@
-import cv2
+#import cv2
 import numpy as np
 from scipy.interpolate import griddata
 from scipy import ndimage
@@ -9,12 +9,6 @@ import numpy as np
 import matplotlib.pylab as plt
 import math
 from PIL import ImageEnhance, Image
-
-INTERPOLATION = {
-    "linear": cv2.INTER_LINEAR,
-    "cubic": cv2.INTER_CUBIC
-}
-cv2.setNumThreads(0)
 
 def change_contrast(img, min_contrast=.25, max_contrast=1.3, contrast=None):
     if isinstance(img, np.ndarray):

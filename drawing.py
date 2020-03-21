@@ -146,11 +146,16 @@ def normalize(offsets):
 def coords_to_offsets(coords):
     """
     convert from coordinates to offsets
+    GTs: 1,2
+    offsets: 0,1,1 # add 0 to the beginning; take t_n+1 - t_n; add a zero back in
+    GTs: # cumsum, clip first one
     """
+    if np.all(coords[0,:2] != 0):
+        coords = np.concatenate([np.array([[0,0,0]]), coords], axis=0)
     offsets = np.concatenate([coords[1:, :2] - coords[:-1, :2], coords[1:, 2:3]], axis=1)
     offsets = np.concatenate([np.array([[0, 0, 1]]), offsets], axis=0)
     return offsets
-
+    # Offsets: same number but starts with 0
 
 def offsets_to_coords(offsets):
     """

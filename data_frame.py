@@ -1,4 +1,4 @@
-import tools
+from tools import distortions
 import copy
 import utils
 
@@ -61,16 +61,21 @@ class DataFrame(object):
             if shuffle:
                 self.shuffle()
 
-            for i in range(0, self.length + 1, batch_size):
+            for i in range(0, self.length + 1, batch_size): # loop through all items using batch_size step
                 batch_idx = self.idx[i: i + batch_size]
                 if not allow_smaller_final_batch and len(batch_idx) != batch_size:
                     break
 
                 data = [mat[batch_idx].copy() for mat in self.data]
 
-                data["x"] = tools.distortions.warp_points(data["x"] * 61) / 61
-                utils.plot_from_synth_format(data["x"])
-                Stop
+                coords_batch = data[0]
+                for ii, item in enumerate(coords_batch):
+                    #utils.plot_from_synth_format(item)
+                    gt = utils.convert_synth_offsets_to_gt(item)
+                    gt[:,0:2] = distortions.warp_points(gt*61)/61
+                    coords_batch[ii] = utils.convert_gts_to_synth_format(gt)
+                    #utils.plot_from_synth_format(coords_batch[ii])
+
                 yield DataFrame(
                     columns=copy.copy(self.columns),
                     data=data

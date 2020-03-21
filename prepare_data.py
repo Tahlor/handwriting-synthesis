@@ -222,8 +222,8 @@ def load():
 
 if __name__ == '__main__':
     main()
-    combine()
-    load()
+    #combine()
+    #load()
 
     # x = np.load(Path("data/processed/original/text.npy"), allow_pickle=True)
     # print(x.shape)

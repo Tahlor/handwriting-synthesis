@@ -258,6 +258,7 @@ if __name__ == '__main__':
 
     dr = DataReader(data_dir=args.processed_data, output_dir=args.checkpoint_folder)
 
+    validation_batch_size = 16 if utils.is_dalai() else 32
     nn = rnn(
         reader=dr,
         log_dir=f'{args.checkpoint_folder}/logs',
@@ -267,7 +268,7 @@ if __name__ == '__main__':
         batch_sizes=[32, 64, 64],
         patiences=[1500, 1000, 500],
         beta1_decays=[.9, .9, .9],
-        validation_batch_size=32,
+        validation_batch_size=validation_batch_size,
         optimizer='rms',
         num_training_steps=100000,
         warm_start_init_step=args.warm_start,
