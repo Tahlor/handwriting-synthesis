@@ -1,4 +1,6 @@
+import tools
 import copy
+import utils
 
 import numpy as np
 import pandas as pd
@@ -63,9 +65,15 @@ class DataFrame(object):
                 batch_idx = self.idx[i: i + batch_size]
                 if not allow_smaller_final_batch and len(batch_idx) != batch_size:
                     break
+
+                data = [mat[batch_idx].copy() for mat in self.data]
+
+                data["x"] = tools.distortions.warp_points(data["x"] * 61) / 61
+                utils.plot_from_synth_format(data["x"])
+                Stop
                 yield DataFrame(
                     columns=copy.copy(self.columns),
-                    data=[mat[batch_idx].copy() for mat in self.data]
+                    data=data
                 )
 
             epoch_num += 1

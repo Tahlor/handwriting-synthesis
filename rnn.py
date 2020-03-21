@@ -11,6 +11,7 @@ from rnn_cell import LSTMAttentionCell
 from rnn_ops import rnn_free_run
 from tf_base_model import TFBaseModel
 from tf_utils import time_distributed_dense_layer
+import tools
 
 """
 Run to initiate training
