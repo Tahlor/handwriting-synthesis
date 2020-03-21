@@ -205,7 +205,7 @@ class TFBaseModel(object):
                 train_loss_history.append(train_loss)
                 train_time_history.append(time.time() - train_start)
 
-                if step % self.log_interval == 0:
+                if (step+self.log_interval-1) % self.log_interval == 0:
                     avg_train_loss = sum(train_loss_history) / len(train_loss_history)
                     avg_val_loss = sum(val_loss_history) / len(val_loss_history)
                     avg_train_time = sum(train_time_history) / len(train_time_history)
@@ -221,6 +221,11 @@ class TFBaseModel(object):
                         round(avg_val_time, 4),
                         round(avg_val_loss, 8),
                     )
+                    if np.isnan(avg_train_loss) or np.isnan(avg_val_loss) or \
+                        avg_train_loss > 1e8 or avg_val_loss > 1e8:
+                        print("NaN loss")
+                        return
+
                     early_stopping_metric = avg_val_loss
                     for metric_name, metric_history in metric_histories.items():
                         metric_val = sum(metric_history) / len(metric_history)
