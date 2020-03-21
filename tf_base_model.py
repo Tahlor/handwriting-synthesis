@@ -222,7 +222,7 @@ class TFBaseModel(object):
                         round(avg_val_loss, 8),
                     )
                     if np.isnan(avg_train_loss) or abs(avg_train_loss) > 1e8: # or np.isnan(avg_val_loss) or or avg_val_loss > 1e8:
-                        print("NaN loss")
+                        print("NaN loss", avg_train_loss)
                         return
 
                     early_stopping_metric = avg_val_loss
