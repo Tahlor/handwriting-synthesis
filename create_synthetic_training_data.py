@@ -84,7 +84,7 @@ def process(vers="random", checkpoint=CHECKPOINT):
             lines = get_lines(n=number)
 
         biases = list(np.random.rand(len(lines))*2)
-        styles = list(np.random.randint(14, size=len(lines)))
+        styles = list(np.random.randint(13, size=len(lines)))
 
         strokes = hand.write(
             filename=f'test_{vers}_{i}.svg',
