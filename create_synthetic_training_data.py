@@ -93,7 +93,7 @@ def process(vers="random", checkpoint=CHECKPOINT):
             draw=False
         )
 
-        data = [{'text': line, 'stroke': stroke.tolist()} for line, stroke in zip(lines, strokes)]
+        data = [{'text': line, 'stroke': stroke.tolist(), 'bias':bias, 'style':style } for line, stroke, bias, style in zip(lines, strokes, biases, styles)]
 
         with open(Path(CHECKPOINT) / f'train_synth_{vers}_{i}.json', 'w') as fp:
             json.dump(data, fp)
