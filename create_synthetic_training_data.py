@@ -71,12 +71,13 @@ def process(vers="random", checkpoint=CHECKPOINT):
     # TESTING = True
     # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-    number = 1 if is_dalai() else 1000
+    batch_size = 1 if is_dalai() else 1000
 
     hand = Hand(checkpoint=checkpoint)
     # usage demo
 
     for i in range(100):
+        number = 2 if i == 1 else batch_size
         if vers=="random":
             lines = [get_invented_line() for n in tqdm(range(number))]
         else:
@@ -93,7 +94,7 @@ def process(vers="random", checkpoint=CHECKPOINT):
             draw=False
         )
 
-        data = [{'text': line, 'stroke': stroke.tolist(), 'bias':bias, 'style':style } for line, stroke, bias, style in zip(lines, strokes, biases, styles)]
+        data = [{'text': line, 'stroke': stroke.tolist(), 'bias': float(bias), 'style': float(style)} for line, stroke, bias, style in zip(lines, strokes, biases, styles)]
 
         with open(Path(CHECKPOINT) / f'train_synth_{vers}_{i}.json', 'w') as fp:
             json.dump(data, fp)
