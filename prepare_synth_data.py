@@ -6,7 +6,7 @@ import numpy as np
 import drawing
 from drawing import MAX_CHAR_LEN, MAX_STROKE_LEN
 import utils
-
+import argparse
 #os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 """
@@ -14,7 +14,7 @@ Takes strokes recovered from offline data and prepares them to be used as traini
 
 """
 
-DATA = get_folder("archidata/all_data_v3.npy")
+#DATA = get_folder("archidata/all_data_v3.npy")
 #DATA = get_folder("/media/data/GitHub/simple_hwr/RESULTS/OFFLINE_PREDS/normal_preload_model/imgs/current/eval/data/55.npy")
 #DATA = "archidata/0.npy"
 
@@ -38,7 +38,7 @@ def process(_sample):
     _id = "-".join(_sample['id'].split("-")[:2])
     return {'stroke': _stroke, 'char': _char, 'id': _id, 'text':_sample['text']}
 
-def process_data(samples):
+def process_data(samples, drop_bad=False):
     global counter, strokes, chars, ids, text
     strokes, chars, ids, text = [], [], [], []
     counter = 0
@@ -51,13 +51,16 @@ def process_data(samples):
     def callback(stroke_dict):
         global counter
         counter += 1
-        if len(stroke_dict["stroke"]) > drawing.MAX_STROKE_LEN:
-            warnings.warn("stroke too long")
-        elif stroke_dict["char"] is not None:
-            strokes.append(stroke_dict["stroke"])
-            chars.append(stroke_dict["char"])
-            ids.append(stroke_dict["id"])
-            text.append(stroke_dict['text'])
+        if stroke_dict:
+            if len(stroke_dict["stroke"]) > drawing.MAX_STROKE_LEN:
+                warnings.warn("stroke too long")
+            elif drop_bad and "distance" in stroke_dict and stroke_dict["distance"]>.01:
+                warnings.warn("stroke error too high")
+            elif stroke_dict["char"] is not None:
+                strokes.append(stroke_dict["stroke"])
+                chars.append(stroke_dict["char"])
+                ids.append(stroke_dict["id"])
+                text.append(stroke_dict['text'])
 
     # LOOP
     for sample in tqdm(samples):
@@ -80,10 +83,16 @@ def process_data(samples):
     return strokes, chars, ids, text
 
 if __name__ == "__main__":
-    data = load_data(DATA)
-    strokes, chars, w_id, text= process_data(data)
+    parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
+    parser.add_argument("--data", type=str, help="Folder of offline reconstructions", default="archidata/all_data_v3.npy")
+    parser.add_argument("--drop_bad", store_value=True, help="Drop high error exemplars")
+    args = parser.parse_args()
 
-    x = np.zeros([len(strokes), drawing.MAX_STROKE_LEN, 3], dtype=np.float32)
+
+    data = load_data(args.data)
+    strokes, chars, w_id, text= process_data(data, drop_bad=args.drop_bad)
+
+    x = np.zeros([len(strokes), drawing.MAX_STROKE_LEN, 3], dtype=np.float32) # BATCH, WIDTH, (X,Y,EOS)
     x_len = np.zeros([len(strokes)], dtype=np.int16)
     c = np.zeros([len(strokes), drawing.MAX_CHAR_LEN], dtype=np.int8)
     c_len = np.zeros([len(strokes)], dtype=np.int8)
@@ -96,11 +105,15 @@ if __name__ == "__main__":
         c_len[i] = len(char)
 
     root = get_folder()
-    np.save(root+'data/processed/x.npy', x)
-    np.save(root+'data/processed/text.npy', text)
-    np.save(root+'data/processed/x_len.npy', x_len)
-    np.save(root+'data/processed/c.npy', c)
-    np.save(root+'data/processed/c_len.npy', c_len)
-    np.save(root + 'data/processed/w_id.npy', w_id)
-    np.save(root+'data/processed/text.npy', text)
+    variant = "processed_drop_bad" if args.drop_bad else "processed"
+    np.save(root+f'data/{variant}/x.npy', x)
+    np.save(root+f'data/{variant}/text.npy', text)
+    np.save(root+f'data/{variant}/x_len.npy', x_len)
+    np.save(root+f'data/{variant}/c.npy', c)
+    np.save(root+f'data/{variant}/c_len.npy', c_len)
+    np.save(root+f'data/{variant}/w_id.npy', w_id)
+    np.save(root+f'data/{variant}/text.npy', text)
     print("Valid strokes", len(x))
+
+    ## CHECK IF WIDTH IS TOO LONG
+    ## MAKE A VARIANT WHERE YOU FILTER HIGH ERROR ONES

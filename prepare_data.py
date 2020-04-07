@@ -179,10 +179,11 @@ def main():
     np.save(output / 'w_id.npy', w_id[valid_mask])
     np.save(output / 'text.npy', [t for i,t in enumerate(text) if valid_mask[i]])
 
-def combine():
-    original = Path("data/processed/original")
-    new = Path("data/processed")
-    output = Path("data/processed/processed_combined")
+def combine(drop_bad=True):
+    var = "processed" if not drop_bad else "processed_drop_bad"
+    original = Path(f"data/{var}/original")
+    new = Path(f"data/{var}")
+    output = Path(f"data/{var}/processed_combined")
 
     #for file in ['x.npy', "x_len.npy", 'c.npy', 'c_len.npy', 'text.npy']: #'w_id.npy',
     x = 0
@@ -222,8 +223,9 @@ def load():
 
 if __name__ == '__main__':
     main()
-    #combine()
-    #load()
+    combine(drop_bad=True)
+    combine(drop_bad=False)
+    load()
 
     # x = np.load(Path("data/processed/original/text.npy"), allow_pickle=True)
     # print(x.shape)
