@@ -82,6 +82,7 @@ class DataReader(object):
             num_epochs=num_epochs,
             allow_smaller_final_batch=(mode == 'test')
         )
+        # Throw some warping in here
         for batch in gen:
             batch['x_len'] = batch['x_len'] - 1
             max_x_len = np.max(batch['x_len'])

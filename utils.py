@@ -1,3 +1,5 @@
+import stroke_recovery
+from scipy import interpolate
 from matplotlib import pyplot as plt
 from PIL import Image, ImageDraw
 from math import ceil
@@ -41,6 +43,13 @@ def get_folder(folder="."):
         return path.as_posix()
     else:
         return (project_root() / folder).as_posix() + "/"
+
+def get_project_root():
+    ROOT_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
+    while ROOT_DIR.name != "handwriting-synthesis":
+        ROOT_DIR = ROOT_DIR.parent
+    return ROOT_DIR
+
 
 def get_max_checkpoint(checkpoint_folder):
     nums = []
@@ -150,13 +159,30 @@ def draw_from_gt(gt, show=True, save_path=None, min_width=None, height=60,
     return data
 
 def eos_to_sos(line):
-    line[1:, -1] = line[:-1, -1]
-    line[0, -1] = 1
+    line = line.copy()
+    if np.asarray(line).ndim==2:
+        line[1:, -1] = line[:-1, -1]
+        line[0, -1] = 1
+    elif np.asarray(line).ndim==3: # batch dimension
+        line[:,1:, -1] = line[:,:-1, -1]
+        line[:,0, -1] = 1
+    else:
+        line[1:] = line[:-1]
+        line[0] = 1
     return line
 
 def sos_to_eos(line):
-    line[:-1, -1] = line[1:, -1]
-    line[-1,-1] = 1
+    line = line.copy()
+
+    if np.asarray(line).ndim==2:
+        line[:-1, -1] = line[1:, -1]
+        line[-1,-1] = 1
+    elif np.asarray(line).ndim==3: # batch dimension
+        line[:, :-1, -1] = line[:, 1:, -1]
+        line[:, -1,-1] = 1
+    else:
+        line[:-1] = line[1:]
+        line[-1] = 1
     return line
 
 def gt_to_pil_format(instance, stroke_number=True, has_start_points=True):
@@ -188,9 +214,11 @@ def is_taylor():
 
 def convert_gts_to_synth_format(stroke):
     new_stroke = stroke[:,:3].copy()
-    if np.any(stroke[:,-1]>=2):
-        raise Exception("Input data is in stroke number format")
-
+    if np.any(new_stroke[:,-1]>=2):
+        #raise Exception("Input data is in stroke number format")
+        warnings.warn("Input data is in stroke number format")
+        new_stroke[:,-1] = stroke_recovery.relativefy(new_stroke[:,-1])
+        assert not np.any(new_stroke[:,-1]>=2)
     # Round SOS
     new_stroke[:, -1] = np.round(new_stroke[:, -1])
 
@@ -254,6 +282,35 @@ def get_widths():
     gt = np.load("archidata/all_data_v4.npy", allow_pickle=True)
     plt.hist([len(i["stroke"]) for i in gt])
     plt.show()
+
+EPSILON=1e-6
+def resample_coords(coords, plot=False):
+    """ Should be in EOS format
+
+    """
+    # L X (X,Y,EOS)
+    coords = coords.astype(np.float64)
+    coords2 = np.concatenate([[np.zeros(3)],coords], axis=0)
+    #coords2[0,2]=1
+    sos = eos_to_sos(coords[:,2])
+    not_sos = 1-sos
+    distances = np.sum((coords2[1:,:2]-coords2[0:-1, :2])**2, axis=1)**.5*not_sos + EPSILON*sos
+    distances[0] = 0
+    cum_distance = np.cumsum(distances, axis=0)
+    coords[:,:2] -= np.min(coords[:,:2], axis=0)
+    factor = 1/np.max(coords[:,1])
+    coords[:,:2] *= factor
+
+    start_times = cum_distance[sos==1]
+
+    estimated_width = int(np.max(coords[:,0])*61*1.02/3)
+    x_func = interpolate.interp1d(cum_distance, coords[:, 0])
+    y_func = interpolate.interp1d(cum_distance, coords[:, 1])
+    x,y,sos2 = stroke_recovery.sample(x_func, y_func, start_times, number_of_samples=estimated_width, plot=plot, last_time=cum_distance[-1])
+    eos2 = sos_to_eos(sos2)
+    final=np.concatenate([[x],[y],[eos2]]).transpose()
+
+    return final
 
 if __name__=="__main__":
     print(project_root())

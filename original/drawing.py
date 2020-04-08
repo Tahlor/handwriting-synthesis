@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import savgol_filter
 from scipy.interpolate import interp1d
-import warnings
+
 
 alphabet = [
     '\x00', ' ', '!', '"', '#', "'", '(', ')', ',', '-', '.',
@@ -20,8 +20,8 @@ alphabet_ord = list(map(ord, alphabet))
 alpha_to_num = defaultdict(int, list(map(reversed, enumerate(alphabet))))
 num_to_alpha = dict(enumerate(alphabet_ord))
 
-MAX_STROKE_LEN = 1600
-MAX_CHAR_LEN = 100
+MAX_STROKE_LEN = 1200
+MAX_CHAR_LEN = 75
 
 
 def align(coords):
@@ -134,28 +134,18 @@ def normalize(offsets):
     normalizes strokes to median unit norm
     """
     offsets = np.copy(offsets)
-    median = np.median(np.linalg.norm(offsets[:, :2], axis=1))
-    if median != 0:
-        offsets[:, :2] /= median
-    else:
-        warnings.warn("Median was zero, cannot norm")
-
+    offsets[:, :2] /= np.median(np.linalg.norm(offsets[:, :2], axis=1))
     return offsets
 
 
 def coords_to_offsets(coords):
     """
     convert from coordinates to offsets
-    GTs: 1,2
-    offsets: 0,1,1 # add 0 to the beginning; take t_n+1 - t_n; add a zero back in
-    GTs: # cumsum, clip first one
     """
-    # if np.all(coords[0,:2] != 0):
-    #     coords = np.concatenate([np.array([[0,0,0]]), coords], axis=0)
     offsets = np.concatenate([coords[1:, :2] - coords[:-1, :2], coords[1:, 2:3]], axis=1)
     offsets = np.concatenate([np.array([[0, 0, 1]]), offsets], axis=0)
     return offsets
-    # Offsets: same number but starts with 0
+
 
 def offsets_to_coords(offsets):
     """
