@@ -12,7 +12,7 @@ new_data/
 
 checkpoints/*
 #!checkpoints/original/
-
+checkpoints/original
 checkpoints/original/img/offline_styles
 styles/sample_offline_styles.npy
 styles/all_offline_styles.npy

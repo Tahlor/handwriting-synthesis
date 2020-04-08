@@ -215,7 +215,7 @@ if __name__ == '__main__':
     kill_gpu_hogs()
     parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
     parser.add_argument("--checkpoint_folder", type=str, help="Folder of checkpoints", default='checkpoints/original')
-    parser.add_argument("--style_path", type=str, help="Folder of style", default='archidata/all_data_v4.npy')
+    parser.add_argument("--style_path", type=str, help="Folder of style", default='archidata/MASTER.npy')
 
     args = parser.parse_args()
 
@@ -234,8 +234,8 @@ if __name__ == '__main__':
     data_path = Path(args.style_path)
     using_test_set = "archidata" not in data_path.as_posix()
     suffix = "test" if using_test_set else "all"
-    if suffix=="test":
-        STOP
+    #if suffix=="test":
+    #    STOP
     if using_test_set:
         if data_path.is_dir():
             data_path = sorted(data_path.glob("*.npy"))[-1]

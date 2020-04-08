@@ -1,3 +1,32 @@
+synth && cd checkpoints
 sbatch combined_v2/train_synth.sh && sbatch no_pretrain_v5/train_synth.sh && sbatch with_pretrain_v2/train_synth.sh
+
+sbatch combined_v3/train_synth.sh && sbatch no_pretrain_v5/train_synth.sh
+
+
+synth && cd checkpoints
 sbatch combined/demo.sh && sbatch no_pretrain_v4/demo.sh && sbatch no_pretrain_v3/demo.sh
 sbatch combined_v2/demo.sh && sbatch with_pretrain_v2/demo.sh && sbatch no_pretrain_v5/demo.sh
+
+
+synth && cd checkpoints
+cd no_pretrain_v3 && sbatch demo_offline.sh && cd ..
+cd no_pretrain_v4 && sbatch demo_offline.sh && cd ..
+cd no_pretrain_v5 && sbatch demo_offline.sh && cd ..
+cd with_pretrain_v2 && sbatch demo_offline.sh && cd ..
+cd combined && sbatch demo_offline.sh && cd ..
+cd combined_v2/ && sbatch demo_offline.sh && cd ..
+
+cd with_pretrain_v2 && sbatch demo_offline.sh && cd ..
+cd combined_v2/ && sbatch demo_offline.sh && cd ..
+
+
+
+
+
+(tf16) -bash-4.2$ cp demo_offline.sh ../no_pretrain_v3
+(tf16) -bash-4.2$ cp demo_offline.sh ../no_pretrain_v4
+(tf16) -bash-4.2$ cp demo_offline.sh ../no_pretrain_v5
+(tf16) -bash-4.2$ cp demo_offline.sh ../with_pretrain_v2
+(tf16) -bash-4.2$ cp demo_offline.sh ../combined_v2/
+
