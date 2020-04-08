@@ -1,3 +1,18 @@
 sbatch combined_v2/train_synth.sh && sbatch no_pretrain_v5/train_synth.sh && sbatch with_pretrain_v2/train_synth.sh
 sbatch combined/demo.sh && sbatch no_pretrain_v4/demo.sh && sbatch no_pretrain_v3/demo.sh
 sbatch combined_v2/demo.sh && sbatch with_pretrain_v2/demo.sh && sbatch no_pretrain_v5/demo.sh
+
+
+
+cd combined_drop/ && cat train_synth.sh && cd ..
+cd with_pretrain && cat train_synth.sh && cd ..
+cd no_pretrain && cat train_synth.sh && cd ..
+cd drop_bad2 && cat train_synth.sh && cd ..
+
+
+
+cd combined_drop/ && sbatch train_synth.sh && cd ..
+cd with_pretrain && sbatch train_synth.sh && cd ..
+cd no_pretrain && sbatch train_synth.sh && cd ..
+cd drop_bad2 && sbatch train_synth.sh && cd ..
+

@@ -107,6 +107,7 @@ class TFBaseModel(object):
 
         self.graph = self.build_graph()
         self.session = tf.Session(graph=self.graph)
+        self.nan_loss = 0
         logging.info('built graph')
 
     def update_train_params(self):
@@ -223,7 +224,11 @@ class TFBaseModel(object):
                     )
                     if np.isnan(avg_train_loss) or abs(avg_train_loss) > 1e8: # or np.isnan(avg_val_loss) or or avg_val_loss > 1e8:
                         print("NaN loss", avg_train_loss)
-                        return
+                        self.nan_loss+=1
+                        if self.nan_loss > 8:
+                            return
+                    else:
+                        self.nan_loss = 0
 
                     early_stopping_metric = avg_val_loss
                     for metric_name, metric_history in metric_histories.items():
