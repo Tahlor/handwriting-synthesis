@@ -36,9 +36,9 @@ def process(_sample):
     _stroke = convert_gts_to_synth_format(_sample['stroke'])
     _char = process_chars(_sample['text'])
     _id = "-".join(_sample['id'].split("-")[:2])
-    return {'stroke': _stroke, 'char': _char, 'id': _id, 'text':_sample['text']}
+    return {'stroke': _stroke, 'char': _char, 'id': _id, 'text':_sample['text'], 'distance':_sample['distance']}
 
-def process_data(samples, drop_bad=False):
+def process_data(samples, drop_bad=False, parallel=True):
     global counter, strokes, chars, ids, text
     strokes, chars, ids, text = [], [], [], []
     counter = 0
@@ -64,7 +64,7 @@ def process_data(samples, drop_bad=False):
 
     # LOOP
     for sample in tqdm(samples):
-        if True:
+        if parallel:
             pool.apply_async(func=process, args=(sample,), callback=callback)
         else:
             callback(process(sample))
@@ -82,12 +82,10 @@ def process_data(samples, drop_bad=False):
 
     return strokes, chars, ids, text
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
-    parser.add_argument("--data", type=str, help="Folder of offline reconstructions", default="archidata/all_data_v3.npy")
-    parser.add_argument("--drop_bad", store_value=True, help="Drop high error exemplars")
-    args = parser.parse_args()
-
+def main(args):
+    root = get_folder()
+    variant = "processed/offline_drop" if args.drop_bad else "processed/offline_no_drop"
+    (Path(root) / f"data/{variant}").mkdir(exist_ok=True, parents=True)
 
     data = load_data(args.data)
     strokes, chars, w_id, text= process_data(data, drop_bad=args.drop_bad)
@@ -104,8 +102,6 @@ if __name__ == "__main__":
         c[i, :len(char)] = char
         c_len[i] = len(char)
 
-    root = get_folder()
-    variant = "processed_drop_bad" if args.drop_bad else "processed"
     np.save(root+f'data/{variant}/x.npy', x)
     np.save(root+f'data/{variant}/text.npy', text)
     np.save(root+f'data/{variant}/x_len.npy', x_len)
@@ -115,5 +111,20 @@ if __name__ == "__main__":
     np.save(root+f'data/{variant}/text.npy', text)
     print("Valid strokes", len(x))
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
+    parser.add_argument("--data", type=str, help="Folder of offline reconstructions", default="archidata/adapted_dtw_v1.npy")
+    parser.add_argument("--drop_bad", action='store_true', help="Drop high error exemplars")
+
+    if True:
+        import shlex
+        narg1 = "--drop_bad --data archidata/adapted_dtw_v2.npy"
+        narg2 = "--data archidata/adapted_dtw_v2.npy"
+        for narg in narg1,narg2:
+            args = parser.parse_args(shlex.split(narg))
+            main(args)
+    else:
+        args = parser.parse_args()
+        main(args)
     ## CHECK IF WIDTH IS TOO LONG
     ## MAKE A VARIANT WHERE YOU FILTER HIGH ERROR ONES
