@@ -67,7 +67,7 @@ def get_max_checkpoint(checkpoint_folder):
 
 def draw_from_gt(gt, show=True, save_path=None, min_width=None, height=60,
                  right_padding="random", linewidth=None, max_width=5, color=0, alpha=False,
-                 use_stroke_number=None, plot_points=False):
+                 use_stroke_number=None, plot_points=False, **kwargs):
     """ RETURNS DATA IN "LOWER" origin format!!!
         GT is a WIDTH x VOCAB size numpy array
         Start strokes are inferred by [:,2], which should be 1 when the point starts a new stroke
@@ -161,6 +161,7 @@ def draw_from_gt(gt, show=True, save_path=None, min_width=None, height=60,
 def eos_to_sos(line):
     line = line.copy()
     if np.asarray(line).ndim==2:
+        #line[0,-1] = 0 # will now be the second keyframe
         line[1:, -1] = line[:-1, -1]
         line[0, -1] = 1
     elif np.asarray(line).ndim==3: # batch dimension
@@ -212,7 +213,7 @@ def gt_to_pil_format(instance, stroke_number=True, has_start_points=True):
 def is_taylor():
     return get_computer() in ("Galois", "brodie")
 
-def convert_gts_to_synth_format(stroke):
+def convert_gts_to_synth_format(stroke, adjustments=True):
     new_stroke = stroke[:,:3].copy()
     if np.any(new_stroke[:,-1]>=2):
         #raise Exception("Input data is in stroke number format")
@@ -222,11 +223,15 @@ def convert_gts_to_synth_format(stroke):
     # Round SOS
     new_stroke[:, -1] = np.round(new_stroke[:, -1])
 
-    # Convert to EOS
-    new_stroke = sos_to_eos(new_stroke)
 
-    coords = drawing.align(new_stroke)
-    coords = drawing.denoise(coords)
+    #if np.all(new_stroke[0,:2] != 0):
+    #new_stroke = np.concatenate([np.array([[0,0,0]]), new_stroke], axis=0)
+
+    # Convert to EOS
+    coords = sos_to_eos(new_stroke)
+    if adjustments:
+        coords = drawing.align(coords)
+        coords = drawing.denoise(coords)
     offsets = drawing.coords_to_offsets(coords)
     #offsets = offsets[:drawing.MAX_STROKE_LEN]
     offsets = drawing.normalize(offsets)
@@ -239,7 +244,7 @@ def convert_synth_offsets_to_gt(offsets):
     test[:, 0] -= np.min(test[:, 0]) # min_x = 0
     test[:, :2] /= np.max(test[:, 1])
     test = eos_to_sos(test)
-    test = test[1:] # remove the first 0,0 point
+    #test = test[1:] # remove the first 0,0 point
     return test
 
 def kill_gpu_hogs(force=False):
@@ -257,10 +262,10 @@ def kill_gpu_hogs(force=False):
                 except:
                     pass
 
-def plot_from_synth_format(offsets, show=False, save_path=None):
+def plot_from_synth_format(offsets, show=False, save_path=None, **kwargs):
     show = True if save_path is None else show
     test = convert_synth_offsets_to_gt(offsets)
-    return draw_from_gt(test, use_stroke_number=False, show=show, save_path=save_path, linewidth=2)
+    return draw_from_gt(test, use_stroke_number=False, show=show, save_path=save_path, linewidth=2, **kwargs)
 
 def test_gt():
     gt = np.load("archidata/all_data_v4.npy", allow_pickle=True)

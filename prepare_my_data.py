@@ -72,7 +72,7 @@ def main(args):
                 item.update({"id": id, "text": gt_lookup[id], "stroke":item["gt"], "distance":0})
                 output.append(item)
     print(len(output))
-    strokes, chars, w_id, text = process_data(output, drop_bad=False, parallel=False)
+    strokes, chars, w_id, text = process_data(output, drop_bad=False, parallel=True)
 
     x = np.zeros([len(strokes), drawing.MAX_STROKE_LEN, 3], dtype=np.float32) # BATCH, WIDTH, (X,Y,EOS)
     x_len = np.zeros([len(strokes)], dtype=np.int16)

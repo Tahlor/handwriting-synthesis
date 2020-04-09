@@ -10,12 +10,15 @@ import drawing
 
 ROOT = utils.get_project_root()
 
-original = ROOT / f"data/processed/original_mine"
+ORIGINAL_MINE = ROOT / f"data/processed/original_mine"
+ORIGINAL_THEIRS = ROOT / f"data/processed/original"
 
-def combine(drop_bad=True):
+def combine(drop_bad=True, original=ORIGINAL_MINE):
+    suffix = "mine" if "mine" in original.name else "theirs"
+
     var = "offline_no_drop" if not drop_bad else "offline_drop"
     new = ROOT / f"data/processed/{var}"
-    combined = ROOT / f"data/processed/{var}/combined"
+    combined = ROOT / f"data/processed/{var}/combined_{suffix}"
     combined.mkdir(exist_ok=True, parents=True)
 
     #for file in ['x.npy', "x_len.npy", 'c.npy', 'c_len.npy', 'text.npy']: #'w_id.npy',
@@ -28,35 +31,42 @@ def combine(drop_bad=True):
             assert len(comb) == x
         else:
             x = len(comb)
+    return combined
 
-def load(drop_bad=True):
+def load(drop_bad=True, combined=None):
     from matplotlib import pyplot as plt
     var = "offline_no_drop" if not drop_bad else "offline_drop"
-    combined = ROOT / f"data/processed/{var}/combined"
+    if not combined:
+        combined = ROOT / f"data/processed/{var}/combined"
 
     offsets = np.load(combined / "x.npy", allow_pickle=True)
     print("Original")
-    utils.plot_from_synth_format(offsets[0])
-    #input("New data")
-    utils.plot_from_synth_format(offsets[-1])
+    # utils.plot_from_synth_format(offsets[0])
+    # #input("New data")
+    # utils.plot_from_synth_format(offsets[-1])
 
-    for axis in 0,1:
+    for axis in 0,: #0,1:
         print(f"AXIS {axis}")
         other = offsets[0:1000][:,:,axis].flatten()
         print(other.shape)
 
-        plt.hist(other, range=(-3,3))
+        plt.hist(other, range=(-3,3),)
+        plt.title(f"X-coords Online Data {combined.stem}")
         plt.show()
 
         other = offsets[-1000:][:,:,axis].flatten()
         print(other.shape)
         plt.hist(other, range=(-3,3))
+        plt.title(f"X-coords Offline Data {combined.stem}")
         plt.show()
 
 
 if __name__ == '__main__':
-    combine(drop_bad=True)
-    load(drop_bad=True)
+    for original in ORIGINAL_MINE, ORIGINAL_THEIRS:
+    #for original in ORIGINAL_THEIRS,:
+        combined=combine(drop_bad=True, original=original)
+        load(drop_bad=True, combined=combined)
 
-    combine(drop_bad=False)
-    load(drop_bad=False)
+        combined=combine(drop_bad=False, original=original)
+        load(drop_bad=False, combined=combined)
+

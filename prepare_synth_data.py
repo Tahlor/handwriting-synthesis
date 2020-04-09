@@ -56,6 +56,8 @@ def process_data(samples, drop_bad=False, parallel=True):
                 warnings.warn("stroke too long")
             elif drop_bad and "distance" in stroke_dict and stroke_dict["distance"]>.01:
                 warnings.warn("stroke error too high")
+            elif np.any(np.linalg.norm(stroke_dict["stroke"][:, :2], axis=1) > 60):
+                warnings.warn("Line too long")
             elif stroke_dict["char"] is not None:
                 strokes.append(stroke_dict["stroke"])
                 chars.append(stroke_dict["char"])

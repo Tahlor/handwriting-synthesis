@@ -16,11 +16,11 @@ cd drop_bad2 && cat train_synth.sh && cd ..
 
 
 
-cd combined_drop/ && sbatch train_synth.sh && cd ..
-cd with_pretrain && sbatch train_synth.sh && cd ..
-cd no_pretrain && sbatch train_synth.sh && cd ..
-cd drop_bad2 && sbatch train_synth.sh && cd ..
-
+cd combined_drop_mine/ && sbatch train_synth.sh && cd ..
+cd combined_drop_theirs/ && sbatch train_synth.sh && cd ..
+cd combined_no_drop_mine/ && sbatch train_synth.sh && cd ..
+cd drop_bad && sbatch train_synth.sh && cd ..
+cd no_drop && sbatch train_synth.sh && cd ..
 
 
 

@@ -73,7 +73,7 @@ class DataFrame(object):
                     #utils.plot_from_synth_format(item)
                     gt = utils.convert_synth_offsets_to_gt(item)
                     gt[:,0:2] = distortions.warp_points(gt*61)/61
-                    coords_batch[ii] = utils.convert_gts_to_synth_format(gt)
+                    coords_batch[ii] = utils.convert_gts_to_synth_format(gt, adjustments=False)
                     #utils.plot_from_synth_format(coords_batch[ii])
 
                 yield DataFrame(
@@ -118,3 +118,38 @@ class DataFrame(object):
             self.columns.append(key)
             self.data.append(value)
         self.dict[key] = value
+
+
+if __name__=='__main__':
+    gt =          [[0, 1, 1],
+                   [2, 5, 0],
+                   [8, 9, 0],
+                   [20, 21, 1],
+                   [12, 13, 1],
+                   [16, 17, 0],
+                   [32, 33, 1],
+                   [28, 29, 0],
+                   [24, 15, 0]]
+    gt = np.asarray(gt).astype(np.float64)
+    # gt[:, 1] -= np.min(gt[:, 1]) # min_y = 0
+    # gt[:, 0] -= np.min(gt[:, 0]) # min_x = 0
+    #gt[:, :2] = gt[:, :2]/np.max(gt[:, 1])
+
+    offsets = utils.convert_gts_to_synth_format(gt, adjustments=True)
+    gt2 = utils.convert_synth_offsets_to_gt(offsets)
+    offsets2 = utils.convert_gts_to_synth_format(gt2, adjustments=False)
+    gt3 = utils.convert_synth_offsets_to_gt(offsets2)
+    np.set_printoptions(suppress=True)
+    print(gt)
+    print(gt2)
+    print(gt3)
+    print(offsets)
+    print(offsets2)
+
+    # Draw a thing
+    ROOT = utils.get_project_root()
+
+    original = ROOT / f"data/processed/original_mine"
+    file = "x.npy"
+
+    np.load(original / file, allow_pickle=True)
