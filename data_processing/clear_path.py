@@ -37,6 +37,6 @@ if __name__=='__main__':
     parser.add_argument("--folder", type=str, help="Folder of checkpoints", default=PATH)
     args = parser.parse_args()
 
-    really = input(f"Really delete all .npy, .log, img, and log files/folders in {PATH}? Y/n ")
+    really = input(f"Really delete all .npy, .log, img, and log files/folders in {args.folder}? Y/n ")
     if really.lower() == "y":
         clean_folder(args)
