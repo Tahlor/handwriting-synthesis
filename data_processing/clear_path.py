@@ -24,10 +24,10 @@ def clean_folder(args):
             max_checkpoint = utils.get_max_checkpoint(f.parent)
             if max_checkpoint:
                 with f.open("w") as _f:
-                    _f.write("\n".join(f"""
+                    _f.write("\n".join([x.strip() for x in f"""
                     model_checkpoint_path: "{f.parent}/model-{max_checkpoint}"
                     all_model_checkpoint_paths: "{f.parent}/model-{max_checkpoint}"
-                    """.strip().split()))
+                    """.split("\n")]))
             else:
                 os.remove(f)
 
