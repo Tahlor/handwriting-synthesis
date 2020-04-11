@@ -280,7 +280,7 @@ if __name__ == '__main__':
             print(e)
             traceback.print_exc()
 
-        if i > 200:
+        if i > 100:
             break
 
     # for i in range(len(styles))[::len(lines)]:

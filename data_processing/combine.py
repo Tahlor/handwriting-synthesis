@@ -12,11 +12,10 @@ ROOT = utils.get_project_root()
 
 ORIGINAL_MINE = ROOT / f"data/processed/original_mine"
 ORIGINAL_THEIRS = ROOT / f"data/processed/original"
-
+VERSION="4"
 def combine(drop_bad=True, original=ORIGINAL_MINE):
     suffix = "mine" if "mine" in original.name else "theirs"
-
-    var = "offline_no_drop" if not drop_bad else "offline_drop"
+    var = f"offline_no_drop{VERSION}" if not drop_bad else f"offline_drop{VERSION}"
     new = ROOT / f"data/processed/{var}"
     combined = ROOT / f"data/processed/{var}/combined_{suffix}"
     combined.mkdir(exist_ok=True, parents=True)
@@ -35,7 +34,7 @@ def combine(drop_bad=True, original=ORIGINAL_MINE):
 
 def load(drop_bad=True, combined=None):
     from matplotlib import pyplot as plt
-    var = "offline_no_drop" if not drop_bad else "offline_drop"
+    var = f"offline_no_drop{VERSION}" if not drop_bad else f"offline_drop{VERSION}"
     if not combined:
         combined = ROOT / f"data/processed/{var}/combined"
 
@@ -51,11 +50,13 @@ def load(drop_bad=True, combined=None):
         print(other.shape)
 
         plt.hist(other, range=(-3,3),)
+        plt.ylim(0,1e6)
         plt.title(f"X-coords Online Data {combined.stem}")
         plt.show()
 
         other = offsets[-1000:][:,:,axis].flatten()
         print(other.shape)
+        plt.ylim(0,1e6)
         plt.hist(other, range=(-3,3))
         plt.title(f"X-coords Offline Data {combined.stem}")
         plt.show()

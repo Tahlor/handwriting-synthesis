@@ -86,7 +86,7 @@ def process_data(samples, drop_bad=False, parallel=True):
 
 def main(args):
     root = get_folder()
-    variant = "processed/offline_drop" if args.drop_bad else "processed/offline_no_drop"
+    variant = f"processed/offline_drop{args.version}" if args.drop_bad else f"processed/offline_no_drop{args.version}"
     (Path(root) / f"data/{variant}").mkdir(exist_ok=True, parents=True)
 
     data = load_data(args.data)
@@ -114,15 +114,26 @@ def main(args):
     print("Valid strokes", len(x))
 
 if __name__ == "__main__":
+    # DATA = "archidata/adapted_dtw_v2.npy"
+    # VERSION = 3
+    source_version = {4:"RESUME_model/imgs/current/eval1/data/all_data.npy",
+                      5: "RESUME_model/imgs/current/eval2/data/all_data.npy"
+                      }
+
+    VERSION = 4
+    DATA = Path("/media/data/GitHub/simple_hwr/RESULTS/OFFLINE_PREDS") / source_version[VERSION]
+
     parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
     parser.add_argument("--data", type=str, help="Folder of offline reconstructions", default="archidata/adapted_dtw_v1.npy")
     parser.add_argument("--drop_bad", action='store_true', help="Drop high error exemplars")
+    parser.add_argument("--version", type=int, default=VERSION, help="Drop high error exemplars")
 
+    # archidata/adapted_dtw_v2.npy
     if True:
         import shlex
-        narg1 = "--drop_bad --data archidata/adapted_dtw_v2.npy"
-        narg2 = "--data archidata/adapted_dtw_v2.npy"
-        for narg in narg1,narg2:
+        narg1 = f"--drop_bad --data {DATA}"
+        narg2 = f"--data {DATA}"
+        for narg in narg1,: #narg2:
             args = parser.parse_args(shlex.split(narg))
             main(args)
     else:

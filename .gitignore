@@ -10,6 +10,7 @@ new_data/
 *.slurm
 
 
+#checkpoints/
 checkpoints/*
 #!checkpoints/original/
 checkpoints/original
