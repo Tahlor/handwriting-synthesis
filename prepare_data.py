@@ -7,6 +7,7 @@ from tqdm import tqdm
 import numpy as np
 import utils
 import drawing
+import shutil
 
 # 568 - 'data/raw/lineStrokes/a01/a01-000/a01-000u-01.xml'
 def get_stroke_sequence(filename, resample=False, first_stroke_0=False):
@@ -213,6 +214,7 @@ def main(args):
     for i,t in enumerate(text):
         output_dict[Path(stroke_fnames[i]).stem] = t
     np.save(output / 'text_easy.npy', output_dict)
+    shutil.copy(output, Path("/synth") / output )
 
 if __name__ == '__main__':
     import argparse
