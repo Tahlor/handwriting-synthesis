@@ -9,7 +9,7 @@ import utils
 import drawing
 
 # 568 - 'data/raw/lineStrokes/a01/a01-000/a01-000u-01.xml'
-def get_stroke_sequence(filename, resample=False):
+def get_stroke_sequence(filename, resample=False, first_stroke_0=False):
     tree = ElementTree.parse(filename).getroot()
     strokes = [i for i in tree if i.tag == 'StrokeSet'][0]
 
@@ -34,7 +34,7 @@ def get_stroke_sequence(filename, resample=False):
 
     coords = drawing.align(coords)
     coords = drawing.denoise(coords)
-    offsets = drawing.coords_to_offsets(coords)
+    offsets = drawing.coords_to_offsets(coords, first_stroke_0=first_stroke_0)
     #offsets = offsets[:drawing.MAX_STROKE_LEN] These are excluded later, truncating them would prevent exclusion
     offsets = drawing.normalize(offsets)
 
@@ -50,47 +50,6 @@ def get_ascii_sequences(filename):
     lines = [line.strip() for line in lines if line.strip()]
     ascii_lines = [drawing.encode_ascii(line)[:drawing.MAX_CHAR_LEN] for line in lines]
     return ascii_lines, lines
-
-def process(fname):
-    # print(i, fname)
-    if fname == 'data/raw/ascii/z01/z01-000/z01-000z.txt':
-        return None
-
-    head, tail = os.path.split(fname)
-    last_letter = os.path.splitext(fname)[0][-1]
-    last_letter = last_letter if last_letter.isalpha() else ''
-
-    line_stroke_dir = head.replace('ascii', 'lineStrokes')
-    line_stroke_fname_prefix = os.path.split(head)[-1] + last_letter + '-'
-    # print(line_stroke_dir)
-    if not os.path.isdir(line_stroke_dir):
-        return None
-
-    line_stroke_fnames = sorted([f for f in os.listdir(line_stroke_dir)
-                                 if f.startswith(line_stroke_fname_prefix)])
-    if not line_stroke_fnames:
-        return None
-
-    original_dir = head.replace('ascii', 'original')
-    original_xml = os.path.join(original_dir, 'strokes' + last_letter + '.xml')
-    tree = ElementTree.parse(original_xml)
-    root = tree.getroot()
-
-    general = root.find('General')
-    if general is not None:
-        writer_id = int(general[0].attrib.get('writerID', '0'))
-    else:
-        writer_id = int('0')
-
-    ascii_sequences, text_group = get_ascii_sequences(fname)
-    assert len(ascii_sequences) == len(line_stroke_fnames)
-    return {"line_stroke_dir":line_stroke_dir,
-            "ascii_sequences":ascii_sequences,
-            "line_stroke_fnames":line_stroke_fnames,
-            "text_group":text_group,
-            "writer_id":writer_id,
-            "path":fname}
-
 
 def collect_data():
     global counter
@@ -150,7 +109,51 @@ def collect_data():
 
     return stroke_fnames, transcriptions, writer_ids, texts
 
-def main():
+
+
+def process(fname):
+    # print(i, fname)
+    if fname == 'data/raw/ascii/z01/z01-000/z01-000z.txt':
+        return None
+
+    head, tail = os.path.split(fname)
+    last_letter = os.path.splitext(fname)[0][-1]
+    last_letter = last_letter if last_letter.isalpha() else ''
+
+    line_stroke_dir = head.replace('ascii', 'lineStrokes')
+    line_stroke_fname_prefix = os.path.split(head)[-1] + last_letter + '-'
+    # print(line_stroke_dir)
+    if not os.path.isdir(line_stroke_dir):
+        return None
+
+    line_stroke_fnames = sorted([f for f in os.listdir(line_stroke_dir)
+                                 if f.startswith(line_stroke_fname_prefix)])
+    if not line_stroke_fnames:
+        return None
+
+    original_dir = head.replace('ascii', 'original')
+    original_xml = os.path.join(original_dir, 'strokes' + last_letter + '.xml')
+    tree = ElementTree.parse(original_xml)
+    root = tree.getroot()
+
+    general = root.find('General')
+    if general is not None:
+        writer_id = int(general[0].attrib.get('writerID', '0'))
+    else:
+        writer_id = int('0')
+
+    ascii_sequences, text_group = get_ascii_sequences(fname)
+    assert len(ascii_sequences) == len(line_stroke_fnames)
+    return {"line_stroke_dir":line_stroke_dir,
+            "ascii_sequences":ascii_sequences,
+            "line_stroke_fnames":line_stroke_fnames,
+            "text_group":text_group,
+            "writer_id":writer_id,
+            "path":fname}
+
+
+
+def main(args):
     print('traversing data directory...')
     stroke_fnames, transcriptions, writer_ids, text = collect_data()
 
@@ -165,7 +168,7 @@ def main():
     ii = 0
 
     for i, (stroke_fname, c_i, w_id_i) in enumerate(tqdm(zip(stroke_fnames, transcriptions, writer_ids), total=len(stroke_fnames))):
-        coords, offsets = get_stroke_sequence(stroke_fname, resample=False)
+        coords, offsets = get_stroke_sequence(stroke_fname, resample=False, first_stroke_0=args.first_stroke_0)
         x_i = offsets
         #coords, offsets = get_stroke_sequence(stroke_fname, resample=False)
 
@@ -189,7 +192,13 @@ def main():
         # if i > 10:
         #     break
 
-    output = Path('data/processed/original')
+    if args.first_stroke_0:
+        output = Path('data/processed/original0')
+        assert x[0,0,2]==0
+    else:
+        output = Path('data/processed/original')
+        assert x[0, 0, 2] == 1
+
     output.mkdir(exist_ok=True, parents=True)
 
     np.save(output / 'x.npy', x[valid_mask])
@@ -206,7 +215,11 @@ def main():
     np.save(output / 'text_easy.npy', output_dict)
 
 if __name__ == '__main__':
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
+    parser.add_argument("--first_stroke_0", action="store_true", help="Folder of offline reconstructions", default=False)
+    args = parser.parse_args()
+    main(args)
 
     # x = np.load(Path("data/processed/original/text.npy"), allow_pickle=True)
     # print(x.shape)

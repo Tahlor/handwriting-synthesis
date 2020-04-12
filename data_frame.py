@@ -20,7 +20,7 @@ class DataFrame(object):
             single batch.
     """
 
-    def __init__(self, columns, data):
+    def __init__(self, columns, data, warp=True):
         assert len(columns) == len(data), 'columns length does not match data length'
 
         lengths = [mat.shape[0] for mat in data]
@@ -31,6 +31,7 @@ class DataFrame(object):
         self.data = data
         self.dict = dict(zip(self.columns, self.data))
         self.idx = np.arange(self.length)
+        self.warp = warp
 
     def to_numpy(self):
         pd.DataFrame.to_numpy(self)
@@ -66,15 +67,16 @@ class DataFrame(object):
                 if not allow_smaller_final_batch and len(batch_idx) != batch_size:
                     break
 
-                data = [mat[batch_idx].copy() for mat in self.data]
+                if self.warp:
+                    data = [mat[batch_idx].copy() for mat in self.data]
 
-                coords_batch = data[0]
-                for ii, item in enumerate(coords_batch):
-                    #utils.plot_from_synth_format(item)
-                    gt = utils.convert_synth_offsets_to_gt(item)
-                    gt[:,0:2] = distortions.warp_points(gt*61)/61
-                    coords_batch[ii] = utils.convert_gts_to_synth_format(gt, adjustments=False)
-                    #utils.plot_from_synth_format(coords_batch[ii])
+                    coords_batch = data[0] # list, ['x', 'x_len', 'c', 'c_len', 'text']
+                    for ii, item in enumerate(coords_batch):
+                        #utils.plot_from_synth_format(item)
+                        gt = utils.convert_synth_offsets_to_gt(item)
+                        gt[:,0:2] = distortions.warp_points(gt*61)/61
+                        coords_batch[ii] = utils.convert_gts_to_synth_format(gt, adjustments=False)
+                        #utils.plot_from_synth_format(coords_batch[ii])
 
                 yield DataFrame(
                     columns=copy.copy(self.columns),

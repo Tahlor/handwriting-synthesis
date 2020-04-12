@@ -143,15 +143,16 @@ def normalize(offsets):
     return offsets
 
 
-def coords_to_offsets(coords):
+def coords_to_offsets(coords, first_stroke_0=False):
     """
     convert from coordinates to offsets
     GTs: 1,2
     offsets: 0,1,1 # add 0 to the beginning; take t_n+1 - t_n; add a zero back in
     GTs: # cumsum, clip first one
     """
+    i = 0 if first_stroke_0 else 1
     offsets = np.concatenate([coords[1:, :2] - coords[:-1, :2], coords[1:, 2:3]], axis=1)
-    offsets = np.concatenate([np.array([[0, 0, 0]]), offsets], axis=0)
+    offsets = np.concatenate([np.array([[0, 0, i]]), offsets], axis=0)
     return offsets
     # Offsets: same number but starts with 0
 

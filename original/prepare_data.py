@@ -40,15 +40,6 @@ def get_ascii_sequences(filename):
     lines = [drawing.encode_ascii(line)[:drawing.MAX_CHAR_LEN] for line in lines]
     return lines
 
-def get_ascii_sequences_new(filename):
-    sequences = open(filename, 'r').read()
-    sequences = sequences.replace(r'%%%%%%%%%%%', '\n')
-    sequences = [i.strip() for i in sequences.split('\n')]
-    lines = sequences[sequences.index('CSR:') + 2:]
-    lines = [line.strip() for line in lines if line.strip()]
-    ascii_lines = [drawing.encode_ascii(line)[:drawing.MAX_CHAR_LEN] for line in lines]
-    return ascii_lines, lines
-
 def collect_data():
     fnames = []
     for dirpath, dirnames, filenames in os.walk('data/raw/ascii/'):
@@ -146,62 +137,6 @@ def process(fname):
             "text_group":text_group,
             "writer_id":writer_id}
 
-def collect_data_new():
-    global counter
-    fnames = []
-    for dirpath, dirnames, filenames in os.walk('data/raw/ascii/'):
-        if dirnames:
-            continue
-        for filename in filenames:
-            if filename.startswith('.'):
-                continue
-            fnames.append(os.path.join(dirpath, filename))
-
-    # low quality samples (selected by collecting samples to
-    # which the trained model assigned very low likelihood)
-    blacklist = set(np.load('data/blacklist.npy', allow_pickle=True))
-
-    stroke_fnames, transcriptions, writer_ids, texts = [], [], [], []
-    counter = 0
-
-    def callback(result):
-        global counter
-        counter += 1
-        if result is None:
-            return
-        line_stroke_dir, ascii_sequences, line_stroke_fnames, text_group, writer_id = \
-            result["line_stroke_dir"], result["ascii_sequences"], result["line_stroke_fnames"], result["text_group"], result["writer_id"]
-        for ascii_seq, line_stroke_fname, text in zip(ascii_sequences, line_stroke_fnames, text_group):
-            if line_stroke_fname in blacklist:
-                continue
-
-            stroke_fnames.append(os.path.join(line_stroke_dir, line_stroke_fname))
-            transcriptions.append(ascii_seq)
-            writer_ids.append(writer_id)
-            texts.append(text)
-        assert len(texts) == len(stroke_fnames)
-
-    poolcount = multiprocessing.cpu_count()
-    pool = multiprocessing.Pool(processes=poolcount)
-
-    for i, fname in enumerate(tqdm(fnames)):
-        if False:
-            callback(process(fname))
-        else:
-            pool.apply_async(func=process, args=(fname,), callback=callback)
-
-    pool.close()
-
-    previous = 0
-    with tqdm(total=len(fnames)) as pbar:
-        while previous < len(fnames):
-            time.sleep(1)
-            new = counter
-            pbar.update(new - previous)
-            previous = new
-    pool.join()
-
-    return stroke_fnames, transcriptions, writer_ids, texts
 
 if __name__ == '__main__':
     print('traversing data directory...')

@@ -21,7 +21,7 @@ Change warm_start_init_step to the most recent checkpoint
 
 class DataReader(object):
 
-    def __init__(self, data_dir, output_dir):
+    def __init__(self, data_dir, output_dir, **kwargs):
         _data_cols = ['x', 'x_len', 'c', 'c_len', 'text']
         data_cols = []
 
@@ -36,7 +36,7 @@ class DataReader(object):
 
         data = [np.load(os.path.join(data_dir, '{}.npy'.format(i))) for i in data_cols]
 
-        self.test_df = DataFrame(columns=data_cols, data=data)
+        self.test_df = DataFrame(columns=data_cols, data=data, **kwargs)
         self.train_df, self.val_df = self.test_df.train_test_split(train_size=0.95, random_state=2018)
         date_str = datetime.now().strftime('%Y-%m-%d_%H-%M')
 
@@ -242,6 +242,7 @@ if __name__ == '__main__':
     parser.add_argument("--checkpoint_folder", type=str, help="Folder of checkpoints", default='checkpoints/original')
     parser.add_argument("--processed_data", type=str, help="Folder of processed data", default='data/processed')
     parser.add_argument("--warm_start", type=str, help="The iteration number to use from the checkpoints", default="max")
+    parser.add_argument("--no_warp", action='store_true', help="Turn off warp", default=False)
     parser.add_argument("--clip", type=float, help="Clipping", default=10)
 
     args = parser.parse_args()
@@ -257,7 +258,7 @@ if __name__ == '__main__':
         raise Exception(f"Unknwon warm start {args.warm_start}")
     #args.checkpoint_folder = "./checkpoints/no_pretrain_v1"
 
-    dr = DataReader(data_dir=args.processed_data, output_dir=args.checkpoint_folder)
+    dr = DataReader(data_dir=args.processed_data, output_dir=args.checkpoint_folder, warp=not args.no_warp)
 
     validation_batch_size = 16 if utils.is_dalai() else 32
     nn = rnn(
@@ -281,6 +282,6 @@ if __name__ == '__main__':
         grad_clip=args.clip,
         lstm_size=400,
         output_mixture_components=20,
-        attention_mixture_components=10
+        attention_mixture_components=10,
     )
     nn.fit()
