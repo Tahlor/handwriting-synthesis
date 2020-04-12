@@ -214,7 +214,10 @@ def main(args):
     for i,t in enumerate(text):
         output_dict[Path(stroke_fnames[i]).stem] = t
     np.save(output / 'text_easy.npy', output_dict)
-    shutil.copy(output, Path("/synth") / output )
+    network_path = Path("/synth") / output
+    if network_path.exists():
+        shutil.rmtree(network_path)
+    shutil.copytree(output, network_path)
 
 if __name__ == '__main__':
     import argparse
