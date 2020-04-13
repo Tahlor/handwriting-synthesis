@@ -6,6 +6,12 @@ from tqdm import tqdm
 import multiprocessing
 import numpy as np
 import time
+import sys
+
+LOCAL = Path(os.path.dirname(os.path.realpath(__file__)))
+ROOT = LOCAL.parent
+
+sys.path.extend([ROOT,LOCAL])
 import drawing2 as drawing
 #import drawing
 
@@ -42,7 +48,7 @@ def get_ascii_sequences(filename):
 
 def collect_data():
     fnames = []
-    for dirpath, dirnames, filenames in os.walk('data/raw/ascii/'):
+    for dirpath, dirnames, filenames in os.walk(ROOT / 'data/raw/ascii/'):
         if dirnames:
             continue
         for filename in filenames:
@@ -52,12 +58,12 @@ def collect_data():
 
     # low quality samples (selected by collecting samples to
     # which the trained model assigned very low likelihood)
-    blacklist = set(np.load('data/blacklist.npy', allow_pickle=True))
+    blacklist = set(np.load(ROOT / 'data/blacklist.npy', allow_pickle=True))
 
     stroke_fnames, transcriptions, writer_ids = [], [], []
     for i, fname in enumerate(fnames):
         print(i, fname)
-        if fname == 'data/raw/ascii/z01/z01-000/z01-000z.txt':
+        if fname == str(ROOT / 'data/raw/ascii/z01/z01-000/z01-000z.txt'):
             continue
 
         head, tail = os.path.split(fname)
@@ -100,7 +106,7 @@ def collect_data():
 
 def process(fname):
     # print(i, fname)
-    if fname == 'data/raw/ascii/z01/z01-000/z01-000z.txt':
+    if fname == str(ROOT / 'data/raw/ascii/z01/z01-000/z01-000z.txt'):
         return None
 
     head, tail = os.path.split(fname)
@@ -141,7 +147,7 @@ def process(fname):
 if __name__ == '__main__':
     print('traversing data directory...')
     stroke_fnames, transcriptions, writer_ids = collect_data()
-    output_folder = "data/processed/original"
+    output_folder = ROOT / "data/processed/original_original"
     print('dumping to numpy arrays...')
     x = np.zeros([len(stroke_fnames), drawing.MAX_STROKE_LEN, 3], dtype=np.float32)
     x_len = np.zeros([len(stroke_fnames)], dtype=np.int16)
@@ -163,10 +169,10 @@ if __name__ == '__main__':
         c_len[i] = len(c_i)
 
         w_id[i] = w_id_i
-        if i > 500:
-            break
-    if not os.path.isdir('data/processed'):
-        os.makedirs('data/processed')
+        # if i > 500:
+        #     break
+    if not os.path.isdir(output_folder):
+        os.makedirs(output_folder)
 
     np.save(Path(output_folder) / 'x.npy', x[valid_mask])
     np.save(Path(output_folder) / 'x_len.npy', x_len[valid_mask])
@@ -175,6 +181,6 @@ if __name__ == '__main__':
     np.save(Path(output_folder) / 'w_id.npy', w_id[valid_mask])
 
     output_dict = {}
-    for i,t in enumerate(text):
-        output_dict[w_id[i]] = t
-    np.save(Path(output_folder) / 'text_easy.npy', output_dict)
+    # for i,t in enumerate(text):
+    #     output_dict[w_id[i]] = t
+    # np.save(Path(output_folder) / 'text_easy.npy', output_dict)
