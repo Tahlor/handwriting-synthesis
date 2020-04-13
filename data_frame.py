@@ -73,9 +73,14 @@ class DataFrame(object):
                     coords_batch = data[0] # list, ['x', 'x_len', 'c', 'c_len', 'text']
                     for ii, item in enumerate(coords_batch):
                         #utils.plot_from_synth_format(item)
-                        gt = utils.convert_synth_offsets_to_gt(item)
+                        gt, xmin, ymin, factor = utils.convert_synth_offsets_to_gt(item, return_all=True)
                         gt[:,0:2] = distortions.warp_points(gt*61)/61
-                        coords_batch[ii] = utils.convert_gts_to_synth_format(gt, adjustments=False)
+
+                        gt[:, 0:2] *= factor
+                        gt[:, 1] += ymin  # min_y = 0
+                        gt[:, 0] += xmin  # min_x = 0
+                        
+                        coords_batch[ii] = utils.convert_gts_to_synth_format(gt, adjustments=True)
                         #utils.plot_from_synth_format(coords_batch[ii])
 
                 yield DataFrame(

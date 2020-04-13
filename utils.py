@@ -237,14 +237,17 @@ def convert_gts_to_synth_format(stroke, adjustments=True):
     offsets = drawing.normalize(offsets)
     return offsets
 
-def convert_synth_offsets_to_gt(offsets):
+def convert_synth_offsets_to_gt(offsets, return_all=False):
     test = offsets.copy()
     test[:, :2] = np.cumsum(test[:, :2], axis=0)
+    xmin, ymin, factor = np.min(test[:, 0]), np.min(test[:, 1]), np.max(test[:, 1])-np.min(test[:, 1])
     test[:, 1] -= np.min(test[:, 1]) # min_y = 0
     test[:, 0] -= np.min(test[:, 0]) # min_x = 0
     test[:, :2] /= np.max(test[:, 1])
     test = eos_to_sos(test)
     #test = test[1:] # remove the first 0,0 point
+    if return_all:
+        return test, xmin, ymin, factor
     return test
 
 def kill_gpu_hogs(force=False):
