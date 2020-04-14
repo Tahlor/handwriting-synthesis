@@ -264,10 +264,12 @@ def kill_gpu_hogs(force=False):
                 except:
                     pass
 
+
 def plot_from_synth_format(offsets, show=False, save_path=None, **kwargs):
-    show = True if save_path is None else show
-    test = convert_synth_offsets_to_gt(offsets)
-    return draw_from_gt(test, use_stroke_number=False, show=show, save_path=save_path, linewidth=2, **kwargs)
+    if is_galois():
+        show = True if save_path is None else show
+        test = convert_synth_offsets_to_gt(offsets)
+        return draw_from_gt(test, use_stroke_number=False, show=show, save_path=save_path, linewidth=2, **kwargs)
 
 def test_gt():
     gt = np.load("archidata/all_data_v4.npy", allow_pickle=True)
