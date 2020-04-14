@@ -216,9 +216,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
     parser.add_argument("--checkpoint_folder", type=str, help="Folder of checkpoints", default='checkpoints/original')
     parser.add_argument("--style_path", type=str, help="Folder of style", default='archidata/MASTER.npy')
-
+    offline = True
     args = parser.parse_args()
-
+    #args.style_path = 'archidata/MINE.npy'
     # usage demo
     lines = [
         ". Sphinx of black quartz, judge my vow.",
@@ -245,20 +245,39 @@ if __name__ == '__main__':
         styles = np.load(data_path, allow_pickle=True).item()
         output = []
         for i in range(len(styles["x"])):
-            d = {"stroke": styles["x"][i], "text": styles["text"][i],
-                 "id": styles["id"][i] if "id" in styles else i}
-            output.append(d)
+            if styles["text"][i]: # needs to have a text component
+                d = {"stroke": styles["x"][i], "text": styles["text"][i],
+                     "id": styles["id"][i] if "id" in styles else i}
+                output.append(d)
         styles = output
     else:
         styles = np.load(data_path, allow_pickle=True)  # this is a list of dicts with keys: strokes, text
+        if "text" not in styles[0]:
+            text = np.load("./archidata/TEXT.npy", allow_pickle=True).item()
+            for i in range(len(styles)):
+                id = Path(styles[i]["image_path"]).name
+                id = id[:id.index("_")]
+                if id in text:
+                    styles[i]["text"] = text[id]
+                else:
+                    styles[i]["text"] = None
+                styles[i]['stroke'] = styles[i]['gt']
+                styles[i]['id'] = id
+
+        # Sort them by score
+        if "distance" in styles[0]:
+            sorted(styles, key=lambda x: x["distance"])
+
+
+    #args.checkpoint_folder = "/media/data/GitHub/handwriting-synthesis/checkpoints/no_pretrain_v4"
 
     hand = Hand(args.checkpoint_folder)
-    output = (Path(args.checkpoint_folder) / f"img/offline_styles/{suffix}")
+    output = (Path(args.checkpoint_folder) / f"img/{'offline' if offline else 'online'}_styles/{suffix}")
     output.mkdir(exist_ok=True, parents=True)
     assert output.exists()
 
     for i, style in enumerate(styles):
-        if len(style["text"])>120:
+        if not style["text"] or len(style["text"])>120:
             continue
         if using_test_set:
             new_stroke = style["stroke"]
