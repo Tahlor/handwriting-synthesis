@@ -160,7 +160,12 @@ if __name__ == '__main__':
         if i % 200 == 0:
             print(i, '\t', '/', len(stroke_fnames))
         x_i = get_stroke_sequence(stroke_fname)
-        valid_mask[i] = ~np.any(np.linalg.norm(x_i[:, :2], axis=1) > 60)
+
+        if x_i is None or len(x_i) > drawing.MAX_STROKE_LEN:
+            valid_mask[i] = 0
+            continue
+        else:
+            valid_mask[i] = ~np.any(np.linalg.norm(x_i[:, :2], axis=1) > 60)
 
         x[i, :len(x_i), :] = x_i
         x_len[i] = len(x_i)

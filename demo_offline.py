@@ -253,6 +253,7 @@ if __name__ == '__main__':
     else:
         styles = np.load(data_path, allow_pickle=True)  # this is a list of dicts with keys: strokes, text
         if "text" not in styles[0]:
+            offline = False
             text = np.load("./archidata/TEXT.npy", allow_pickle=True).item()
             for i in range(len(styles)):
                 id = Path(styles[i]["image_path"]).name

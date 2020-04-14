@@ -223,7 +223,6 @@ def convert_gts_to_synth_format(stroke, adjustments=True):
     # Round SOS
     new_stroke[:, -1] = np.round(new_stroke[:, -1])
 
-
     #if np.all(new_stroke[0,:2] != 0):
     #new_stroke = np.concatenate([np.array([[0,0,0]]), new_stroke], axis=0)
 
@@ -233,7 +232,7 @@ def convert_gts_to_synth_format(stroke, adjustments=True):
         coords = drawing.align(coords)
         coords = drawing.denoise(coords)
     offsets = drawing.coords_to_offsets(coords)
-    #offsets = offsets[:drawing.MAX_STROKE_LEN]
+    offsets = offsets[:drawing.MAX_STROKE_LEN]
     offsets = drawing.normalize(offsets)
     return offsets
 

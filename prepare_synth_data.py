@@ -1,3 +1,4 @@
+from collections import defaultdict
 import time
 import multiprocessing
 from tqdm import tqdm
@@ -36,6 +37,7 @@ def process(_sample):
     _stroke = convert_gts_to_synth_format(_sample['stroke'])
     _char = process_chars(_sample['text'])
     _id = "-".join(_sample['id'].split("-")[:2])
+    #plot_from_synth_format(_stroke, save_path=Path(f"/media/data/GitHub/handwriting-synthesis/data/processed/IMGS/{_id}.png"))
     return {'stroke': _stroke, 'char': _char, 'id': _id, 'text':_sample['text'], 'distance':_sample['distance']}
 
 def process_data(samples, drop_bad=False, parallel=True):
@@ -47,17 +49,23 @@ def process_data(samples, drop_bad=False, parallel=True):
     pool = multiprocessing.Pool(processes=poolcount)
 
     counter = 0
-
+    problems = defaultdict(int)
     def callback(stroke_dict):
         global counter
         counter += 1
         if stroke_dict:
-            if len(stroke_dict["stroke"]) > drawing.MAX_STROKE_LEN:
+            if stroke_dict["stroke"] is None:
+                warnings.warn("Stroke was None; possible median 0 problem")
+                problems["The median was 0"] += 1
+            elif len(stroke_dict["stroke"]) > drawing.MAX_STROKE_LEN:
                 warnings.warn("stroke too long")
+                problems["Too many stroke points"] += 1
             elif drop_bad and "distance" in stroke_dict and stroke_dict["distance"]>.01:
                 warnings.warn("stroke error too high")
+                problems["NN distance too high"] += 1
             elif np.any(np.linalg.norm(stroke_dict["stroke"][:, :2], axis=1) > 60):
-                warnings.warn("Line too long")
+                warnings.warn("A stroke segment was too long")
+                problems["A stroke segment was too long"] += 1
             elif stroke_dict["char"] is not None:
                 strokes.append(stroke_dict["stroke"])
                 chars.append(stroke_dict["char"])
@@ -81,7 +89,7 @@ def process_data(samples, drop_bad=False, parallel=True):
             pbar.update(new - previous)
             previous = new
     pool.join()
-
+    print(problems)
     return strokes, chars, ids, text
 
 def main(args):
@@ -90,7 +98,7 @@ def main(args):
     (Path(root) / f"data/{variant}").mkdir(exist_ok=True, parents=True)
 
     data = load_data(args.data)
-    strokes, chars, w_id, text= process_data(data, drop_bad=args.drop_bad)
+    strokes, chars, w_id, text = process_data(data, drop_bad=args.drop_bad)
 
     x = np.zeros([len(strokes), drawing.MAX_STROKE_LEN, 3], dtype=np.float32) # BATCH, WIDTH, (X,Y,EOS)
     x_len = np.zeros([len(strokes)], dtype=np.int16)

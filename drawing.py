@@ -139,7 +139,7 @@ def normalize(offsets):
         offsets[:, :2] /= median
     else:
         warnings.warn("Median was zero, cannot norm")
-
+        return None
     return offsets
 
 

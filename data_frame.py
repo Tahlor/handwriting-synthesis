@@ -81,8 +81,8 @@ class DataFrame(object):
                         gt[:, 0] += xmin  # min_x = 0
                         
                         coords_batch[ii] = utils.convert_gts_to_synth_format(gt, adjustments=True)
-                        #utils.plot_from_synth_format(coords_batch[ii])
-
+                        utils.plot_from_synth_format(coords_batch[ii])
+                        continue
                 yield DataFrame(
                     columns=copy.copy(self.columns),
                     data=data
@@ -126,8 +126,7 @@ class DataFrame(object):
             self.data.append(value)
         self.dict[key] = value
 
-
-if __name__=='__main__':
+def test():
     gt =          [[0, 1, 1],
                    [2, 5, 0],
                    [8, 9, 0],
@@ -153,10 +152,11 @@ if __name__=='__main__':
     print(offsets)
     print(offsets2)
 
+if __name__=='__main__':
+
     # Draw a thing
     ROOT = utils.get_project_root()
 
     original = ROOT / f"data/processed/original_mine"
     file = "x.npy"
-
     np.load(original / file, allow_pickle=True)

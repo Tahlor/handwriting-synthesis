@@ -173,15 +173,15 @@ def main(args):
         x_i = offsets
         #coords, offsets = get_stroke_sequence(stroke_fname, resample=False)
 
-        # Exclude long strokes
-        valid_mask[i] = ~np.any(np.linalg.norm(x_i[:, :2], axis=1) > 60) # exclude where stroke distance bigger than 60
-
-        # Exclude wide images
-        if len(offsets) > drawing.MAX_STROKE_LEN:
+        # Exclude wide images OR images where median norm is zero
+        if offsets is None or len(offsets) > drawing.MAX_STROKE_LEN:
             ii += 1
             print(ii)
             valid_mask[i] = 0
             continue
+
+        # Exclude long strokes
+        valid_mask[i] = ~np.any(np.linalg.norm(x_i[:, :2], axis=1) > 60) # exclude where stroke distance bigger than 60
 
         x[i, :len(x_i), :] = x_i
         x_len[i] = len(x_i)
@@ -224,6 +224,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Create spinoffs of a baseline config with certain parameters modified")
     parser.add_argument("--first_stroke_0", action="store_true", help="Folder of offline reconstructions", default=False)
     args = parser.parse_args()
+    #args.first_stroke_0=True
     main(args)
 
     # x = np.load(Path("data/processed/original/text.npy"), allow_pickle=True)
