@@ -80,7 +80,7 @@ class DataFrame(object):
                         gt[:, 1] += ymin  # min_y = 0
                         gt[:, 0] += xmin  # min_x = 0
                         
-                        coords_batch[ii] = utils.convert_gts_to_synth_format(gt, adjustments=True)
+                        coords_batch[ii] = utils.convert_gts_to_synth_format(gt, adjustments=False)
                         utils.plot_from_synth_format(coords_batch[ii])
                         continue
                 yield DataFrame(

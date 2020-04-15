@@ -286,7 +286,7 @@ if __name__ == '__main__':
             new_stroke = convert_gts_to_synth_format(style["stroke"][:, 0:3])
 
         style = {"author": style["id"], "stroke":new_stroke, "text":style["text"]}
-        plot_from_synth_format(new_stroke, save_path=output / f'{style["author"]}_original.png')
+        plot_from_synth_format(new_stroke, save_path=output / f'{style["author"]}_original.png', force=True)
 
         print(f"Author, {style['author']}...")
         try:
