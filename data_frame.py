@@ -71,16 +71,18 @@ class DataFrame(object):
                     data = [mat[batch_idx].copy() for mat in self.data]
 
                     coords_batch = data[0] # list, ['x', 'x_len', 'c', 'c_len', 'text']
+                    lens_batch = data[1]
                     for ii, item in enumerate(coords_batch):
+                        length = lens_batch[ii]
                         #utils.plot_from_synth_format(item)
-                        gt, xmin, ymin, factor = utils.convert_synth_offsets_to_gt(item, return_all=True)
+                        gt, xmin, ymin, factor = utils.convert_synth_offsets_to_gt(item[:length], return_all=True)
                         gt[:,0:2] = distortions.warp_points(gt*61)/61
 
                         gt[:, 0:2] *= factor
                         gt[:, 1] += ymin  # min_y = 0
                         gt[:, 0] += xmin  # min_x = 0
                         
-                        coords_batch[ii] = utils.convert_gts_to_synth_format(gt, adjustments=False)
+                        coords_batch[ii][:length] = utils.convert_gts_to_synth_format(gt, adjustments=True)
                         utils.plot_from_synth_format(coords_batch[ii])
                         continue
                 yield DataFrame(

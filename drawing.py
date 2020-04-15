@@ -134,7 +134,8 @@ def normalize(offsets):
     normalizes strokes to median unit norm
     """
     offsets = np.copy(offsets)
-    median = np.median(np.linalg.norm(offsets[:, :2], axis=1))
+    distances = np.linalg.norm(offsets[:, :2], axis=1) # exclude trivial strokes
+    median = np.median(distances[distances>0])
     if median != 0:
         offsets[:, :2] /= median
     else:
