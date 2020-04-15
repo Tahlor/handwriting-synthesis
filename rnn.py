@@ -246,7 +246,7 @@ if __name__ == '__main__':
     parser.add_argument("--clip", type=float, help="Clipping", default=10)
 
     args = parser.parse_args()
-    args.processed_data = "data/processed/offline_drop4"
+    #args.processed_data = "data/processed/offline_drop4"
     args.checkpoint_folder = get_folder(args.checkpoint_folder)
     args.processed_data = get_folder(args.processed_data)
 
